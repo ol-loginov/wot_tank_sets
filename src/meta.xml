@@ -1,0 +1,10 @@
+<root>
+    <!-- Идентификатор пакета -->
+    <id>com.github.ol_loginov.custom_tank_filters</id>
+    <!-- Версия пакета -->
+    <version>0.1.0</version>
+    <!-- Имя пакета понятное для пользователя -->
+    <name>Custom Tank Filters</name>
+    <!-- Описание пакета -->
+    <description>Add custom filters to tank carousel</description>
+</root>
