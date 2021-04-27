@@ -1,0 +1,3 @@
+import bwpydevd
+
+bwpydevd.startDebug()

@@ -1,0 +1,244 @@
+def invertedFilterAssetPath(filter_name, ext = 'png'):
+    return '../maps/icons/filters/inverted/%s.%s' % (filter_name, ext)
+
+from account_helpers.AccountSettings import AccountSettings
+from gui.prb_control.settings import VEHICLE_LEVELS
+from gui.Scaleform.daapi.view.common.filter_contexts import FilterSetupContext, getFilterPopoverSetupContexts, getFilterSetupContexts
+from gui.Scaleform.daapi.view.common.filter_popover import TankCarouselFilterPopover, VehiclesFilterPopover, _SECTION as FILTER_SECTIONS
+from gui.Scaleform.daapi.view.common.vehicle_carousel.carousel_filter import BasicCriteriesGroup, CarouselFilter, _CarouselFilter
+from gui.Scaleform.daapi.view.lobby.hangar.carousels.basic.tank_carousel import TankCarousel
+from gui.shared.utils import makeSearchableString
+from gui.shared.utils.functions import makeTooltip
+from gui.shared.utils.requesters.ItemsRequester import REQ_CRITERIA, PredicateCondition
+from helpers.i18n import makeString
+import constants, nations
+
+TRISTATE_FILTERS = ['elite', 'premium', 'favorite', 'bonus', 'rented', 'crystals']
+TRISTATE_FILTERS += nations.NAMES
+TRISTATE_FILTERS += constants.VEHICLE_CLASSES
+TRISTATE_FILTERS += map(lambda lvl: 'level_%d' % lvl, VEHICLE_LEVELS)
+TRISTATE_FILTERS += nations.ALLIANCES_TAGS
+
+def update(self, filters):
+    super(BasicCriteriesGroup, self).update(filters)
+
+    if filters['igr'] and constants.IS_KOREA:
+        self._criteria |= REQ_CRITERIA.VEHICLE.IS_PREMIUM_IGR
+
+    if filters['searchNameVehicle']:
+        self._criteria |= REQ_CRITERIA.VEHICLE.NAME_VEHICLE(makeSearchableString(filters['searchNameVehicle']))
+
+    selectedNationsIds = []
+    deselectedNationsIds = []
+    for nation, nId in nations.INDICES.iteritems():
+        if filters[nation] == 1:
+            selectedNationsIds.append(nId)
+        elif filters[nation] == -1:
+            deselectedNationsIds.append(nId)
+    if selectedNationsIds:
+        self._criteria |= REQ_CRITERIA.NATIONS(selectedNationsIds)
+    if deselectedNationsIds:
+        self._criteria |= ~REQ_CRITERIA.NATIONS(deselectedNationsIds)
+    
+    selectedVehiclesIds = []
+    deselectedVehiclesIds = []
+    for vehicleType, _ in constants.VEHICLE_CLASS_INDICES.iteritems():
+        if filters[vehicleType] == 1:
+            selectedVehiclesIds.append(vehicleType)
+        elif filters[vehicleType] == -1:
+            deselectedVehiclesIds.append(vehicleType)
+    if selectedVehiclesIds:
+        self._criteria |= REQ_CRITERIA.VEHICLE.CLASSES(selectedVehiclesIds)
+    if deselectedVehiclesIds:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.CLASSES(deselectedVehiclesIds)
+    
+    selectedLevels = []
+    deselectedLevels = []
+    for level in VEHICLE_LEVELS:
+        lvl = 'level_%d' % level
+        if filters[lvl] == 1:
+            selectedLevels.append(level)
+        elif filters[lvl] == -1:
+            deselectedLevels.append(level)
+    if selectedLevels:
+        self._criteria |= REQ_CRITERIA.VEHICLE.LEVELS(selectedLevels)
+    if deselectedLevels:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.LEVELS(deselectedLevels)
+
+    if filters['rented'] == 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.RENT
+    elif filters['rented'] == -1:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.RENT
+
+    if filters['crystals'] == 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.EARN_CRYSTALS
+    elif filters['crystals'] == -1:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.EARN_CRYSTALS
+
+    if filters['bonus'] == 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.HAS_XP_FACTOR
+    elif filters['bonus'] == -1:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.HAS_XP_FACTOR
+
+    if filters['favorite'] == 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.FAVORITE
+    if filters['favorite'] == -1:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.FAVORITE
+
+    for key, id in nations.ALLIANCE_IDS.iteritems():
+        if filters[key] == 1:
+            self._criteria |= REQ_CRITERIA.NATIONS(nations.ALLIANCE_IDS_MAP[id])
+        elif filters[key] == -1:
+            self._criteria |= ~REQ_CRITERIA.NATIONS(nations.ALLIANCE_IDS_MAP[id])
+
+    if filters['elite'] == 1 and filters['premium'] == 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.ELITE
+    elif filters['elite'] == 1 and filters['premium'] != 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.ELITE | ~REQ_CRITERIA.VEHICLE.PREMIUM
+    elif filters['elite'] != 1 and filters['premium'] == 1:
+        self._criteria |= REQ_CRITERIA.VEHICLE.PREMIUM
+    elif filters['elite'] == 0 and filters['premium'] == -1:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.PREMIUM
+    elif filters['elite'] == -1 and filters['premium'] == 0:
+        self._criteria |= REQ_CRITERIA.CUSTOM(PredicateCondition(lambda item: item.isPremium or not item.isElite))
+    elif filters['elite'] == -1 and filters['premium'] == -1:
+        self._criteria |= ~REQ_CRITERIA.VEHICLE.ELITE
+
+old_update = BasicCriteriesGroup.update
+BasicCriteriesGroup.update = update
+
+def isDefault(self, keys=None):
+    old_isDefault(self, keys)
+    return False
+
+def switch(self, key, save=True):
+    if key in TRISTATE_FILTERS:
+        old_val = self._filters[key]
+        if isinstance(old_val, int):
+            new_val = (old_val+2)%3 - 1
+        elif old_val:
+            new_val = 0
+        else:
+            new_val = 1
+        self.update({ key: new_val }, save)
+    else:
+        old_switch(self, key, save)
+
+def reset(self, keys=None, exceptions=None, save=True):
+    old_reset(self, keys, exceptions, save)
+    self.update(dict.fromkeys(TRISTATE_FILTERS, 0))
+
+old_isDefault = _CarouselFilter.isDefault
+_CarouselFilter.isDefault = isDefault
+
+old_switch = _CarouselFilter.switch
+_CarouselFilter.switch = switch
+
+old_reset = _CarouselFilter.reset
+_CarouselFilter.reset = reset
+
+def load(self):
+    defaultFilters = AccountSettings.getFilterDefaults(self._serverSections)
+    defaultFilters.update({ key: False for key in nations.ALLIANCES_TAGS })
+    savedFilters = self.settingsCore.serverSettings.getSections(self._serverSections, defaultFilters)
+    for section in self._clientSections:
+        defaultFilters.update(AccountSettings.getFilterDefault(section))
+        savedFilters.update(AccountSettings.getFilter(section))
+
+    self._filters = defaultFilters
+    for key, value in defaultFilters.iteritems():
+        v = savedFilters.get(key, False)
+        if key in TRISTATE_FILTERS:
+            savedFilters[key] = int(v)
+        else:
+            savedFilters[key] = type(value)(v)
+
+    self.update(savedFilters, save=False)
+
+old_load = CarouselFilter.load
+CarouselFilter.load = load
+
+def _getInitialVO(self, filters, xpRateMultiplier):
+    sections = ['nations', 'vehicleTypes', 'levels', 'specials']
+    dataVO = _old_getInitialVO(self, filters, xpRateMultiplier)
+    mapping = self._VehiclesFilterPopover__mapping
+    for index, entry in enumerate(mapping[FILTER_SECTIONS.SPECIALS]):
+        h = dataVO['specials'][index]
+        if h['selected'] == -1:
+            h['value'] = invertedFilterAssetPath(entry)
+        h['selected'] = (h['selected'] != 0)
+        if entry in nations.ALLIANCES_TAGS:
+            id = nations.ALLIANCE_IDS[entry]
+            tooltip_header = ('#personal_missions:alliance/{}/name').format(id)
+            tooltip_body = ', '.join(map(lambda nation: makeString(('#nations:{}').format(nation)), nations.ALLIANCE_TO_NATIONS[entry]))
+            h['tooltip'] = makeTooltip(tooltip_header, tooltip_body)
+    for index, entry in enumerate(mapping[FILTER_SECTIONS.LEVELS]):
+        h = dataVO['levels'][index]
+        if h['selected'] == -1:
+            h['value'] = invertedFilterAssetPath(entry)
+        h['selected'] = (h['selected'] != 0)
+    for index, entry in enumerate(mapping[FILTER_SECTIONS.VEHICLE_TYPES]):
+        h = dataVO['vehicleTypes'][index]
+        if h['selected'] == -1:
+            h['value'] = invertedFilterAssetPath(entry)
+        h['selected'] = (h['selected'] != 0)
+    for index, entry in enumerate(mapping[FILTER_SECTIONS.NATIONS]):
+        h = dataVO['nations'][index]
+        if h['selected'] == -1:
+            h['value'] = invertedFilterAssetPath(entry)
+        h['selected'] = (h['selected'] != 0)
+    return dataVO
+
+def _update(self, isInitial=False):
+    return _old_update(self, True)
+
+_old_getInitialVO = VehiclesFilterPopover._getInitialVO
+VehiclesFilterPopover._getInitialVO = _getInitialVO
+
+_old_update = VehiclesFilterPopover._update
+VehiclesFilterPopover._update = _update
+
+def _generateMapping(cls, hasRented, hasEvent, hasRoles, isBattleRoyaleEnabled=False):
+    mapping = _old_generateMapping(hasRented, hasEvent, hasRoles, isBattleRoyaleEnabled)
+    mapping[FILTER_SECTIONS.SPECIALS][:0] = nations.ALLIANCES_TAGS_ORDER
+    return mapping
+
+_old_generateMapping = TankCarouselFilterPopover._generateMapping
+TankCarouselFilterPopover._generateMapping = _generateMapping
+
+def _getInitialFilterVO(self, contexts):
+    filters = self.filter.getFilters(self._usedFilters)
+    filtersVO = _old_getInitialFilterVO(self, contexts)
+    for index, entry in enumerate(self._usedFilters):
+        h = filtersVO['hotFilters'][index]
+        if filters[entry] == -1:
+            h['value'] = invertedFilterAssetPath(entry)
+        h['selected'] = (filters[entry] != 0)
+    return filtersVO
+
+def setFilter(self, idx):
+    old_setFilter(self, idx)
+    self.updateHotFilters()
+
+def updateHotFilters(self):
+    if hasattr(self, 'initiated') and self.initiated:
+        self.as_initCarouselFilterS(self._getInitialFilterVO(getFilterSetupContexts(self.itemsCache.items.shop.dailyXPFactor)))
+    else:
+        old_updateHotFilters(self)
+        self.initiated = True
+
+def setRowCount(self, val):
+    self.initiated = False
+    old_setRowCount(self, val)
+
+old_setRowCount = TankCarousel.setRowCount
+TankCarousel.setRowCount = setRowCount
+
+_old_getInitialFilterVO = TankCarousel._getInitialFilterVO
+TankCarousel._getInitialFilterVO = _getInitialFilterVO
+
+old_updateHotFilters = TankCarousel.updateHotFilters
+TankCarousel.updateHotFilters = updateHotFilters
+
+old_setFilter = TankCarousel.setFilter
+TankCarousel.setFilter = setFilter
