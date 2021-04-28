@@ -1,5 +1,5 @@
 from gui.Scaleform.daapi.view.lobby.hangar.carousels import TankCarousel
-from wot_tank_filter_lib.events import *
+from .events import *
 
 log = logging.getLogger(__name__)
 

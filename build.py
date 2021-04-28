@@ -53,7 +53,13 @@ def create_wotmod():
 
 
 def compile_sources():
-    for root, dirs, files in os.walk(wotmod_root):
+    for root, dirs, files in os.walk(src_folder):
+        for f in files:
+            src = os.path.join(root, f)
+            if os.path.basename(src).endswith('.pyc'):
+                os.remove(src)
+
+    for root, dirs, files in os.walk(src_folder):
         for f in files:
             src = os.path.join(root, f)
             if os.path.basename(src).endswith('.py'):
@@ -61,6 +67,9 @@ def compile_sources():
 
 
 def build():
+    log.info('Compile pythons...')
+    compile_sources()
+
     log.info('Remove target folder...')
     remove_tree(target_folder)
 
@@ -72,9 +81,6 @@ def build():
 
     log.info('Copy sources...')
     copy_tree(src_folder, wotmod_root, verbose=False)
-
-    log.info('Compile pythons...')
-    compile_sources()
 
     log.info('Make wotmod archive...')
     create_wotmod()
