@@ -5,8 +5,11 @@ Thanks for https://github.com/StranikS-Scan/WorldOfTanks-Decompiled
 
 Debugging?
 
-1) Search for preferences.xml in Local/Roaming/Wargaming.net/WorldOfTanks
-2) Add node 'scriptsPreferences/development/pydevd' with text:
+1) install pydecd-pycharm.egg in "<WOT>/res_mods/1.12.1.1/scripts/common/pydev/pycharm/pydev" and compile
+2) make soft link from "<current folder>/target/wotmod/res/scripts/client/gui" to "<WOT>/res_mods/1.12.1.1/scripts/client/gui"
+
+3) Search for preferences.xml in Local/Roaming/Wargaming.net/WorldOfTanks
+4) Add node 'scriptsPreferences/development/pydevd' with text:
 
 ```xml
 	<scriptsPreferences>
@@ -23,5 +26,5 @@ Debugging?
 				</autoConnect>
 			</pydevd>
 		</development>
-
+    </scriptsPreferences>
 ```

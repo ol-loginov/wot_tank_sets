@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.7
+
 import os
 import zipfile
 from distutils.dir_util import copy_tree, remove_tree
