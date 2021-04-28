@@ -3,28 +3,12 @@
 Thanks for https://github.com/StranikS-Scan/WorldOfTanks-Decompiled 
 :)
 
-Debugging?
+How-To Steps
 
-1) install pydecd-pycharm.egg in "<WOT>/res_mods/1.12.1.1/scripts/common/pydev/pycharm/pydev" and compile
-2) make soft link from "<current folder>/target/wotmod/res/scripts/client/gui" to "<WOT>/res_mods/1.12.1.1/scripts/client/gui"
+1) Develop with PyCharm PY-145.597.11
+2) Clone this git in "<WOT>/res_mods/1.12.1.1"
+3) Unpack pycharm-debug.egg in "<WOT>/res_mods/1.12.1.1/scripts/common/pydev/pycharm/pydev" and compile folder with Python 2.7
 
-3) Search for preferences.xml in Local/Roaming/Wargaming.net/WorldOfTanks
-4) Add node 'scriptsPreferences/development/pydevd' with text:
+4) Clone "StranikS-Scan/WorldOfTanks-Decompiled" git in some folder (let's name it <WOT-Decompiled>)
+5) Create empty PyCharm project. Add "<WOT>/res_mods/1.12.1.1" as new content root to it, and "<WOT-Decompiled>" either
 
-```xml
-	<scriptsPreferences>
-		<development>
-			<pydevd>
-				<port>5678</port>
-				<suspend>True</suspend>
-				<replacePath>
-					<to>aloha</to>
-					<from>aloha</from>
-				</replacePath>
-				<autoConnect>
-					<client>True</client>
-				</autoConnect>
-			</pydevd>
-		</development>
-    </scriptsPreferences>
-```

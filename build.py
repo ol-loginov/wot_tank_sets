@@ -12,15 +12,15 @@ mod_pack_id = 'wot_tank_filter'
 mod_id = mod_author_id + '.' + mod_pack_id
 
 # current folder
-build_folder = os.path.dirname(os.path.abspath(__file__))
+project_folder = os.path.dirname(os.path.abspath(__file__))
+project_scripts = os.path.join(project_folder, 'scripts')
 
 # sources & targets
-src_folder = os.path.join(build_folder, 'src')
-target_folder = os.path.join(build_folder, 'target')
+target_folder = os.path.join(project_folder, 'target')
 
 # wotmod generation
 wotmod_root = os.path.join(target_folder, 'wotmod')
-wotmod_file = os.path.join(target_folder, '%s.wotmod' % (mod_id))
+wotmod_file = os.path.join(target_folder, '%s.wotmod' % (mod_id,))
 
 
 def panic(message):
@@ -53,23 +53,20 @@ def create_wotmod():
 
 
 def compile_sources():
-    for root, dirs, files in os.walk(src_folder):
+    for root, dirs, files in os.walk(project_scripts):
         for f in files:
             src = os.path.join(root, f)
             if os.path.basename(src).endswith('.pyc'):
                 os.remove(src)
 
-    for root, dirs, files in os.walk(src_folder):
+    for root, dirs, files in os.walk(project_scripts):
         for f in files:
             src = os.path.join(root, f)
             if os.path.basename(src).endswith('.py'):
                 compile(src, doraise=True)
 
 
-def build():
-    log.info('Compile pythons...')
-    compile_sources()
-
+def build_wotmod():
     log.info('Remove target folder...')
     remove_tree(target_folder)
 
@@ -80,10 +77,17 @@ def build():
     ensure_folder(wotmod_root)
 
     log.info('Copy sources...')
-    copy_tree(src_folder, wotmod_root, verbose=False)
+    copy_tree(project_scripts, os.path.join(wotmod_root, 'scripts'), verbose=False)
 
     log.info('Make wotmod archive...')
     create_wotmod()
+
+
+def build():
+    log.info('Compile pythons...')
+    compile_sources()
+
+    # build_wotmod()
 
 
 log.set_threshold(log.INFO)
