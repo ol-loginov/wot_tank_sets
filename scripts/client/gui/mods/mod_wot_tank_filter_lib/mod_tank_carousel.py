@@ -8,7 +8,8 @@ log = logging.getLogger(__name__)
 
 @overrideMethod(TankCarousel, 'updateVehicles')
 def tank_carousel__update_vehicles(base, self, *args, **kwargs):
+    log.info('tank_carousel__update_vehicles')
     return base(self, *args, **kwargs)
 
 
-TANK_CAROUSEL_PROXY = True
+TANK_CAROUSEL_MODIFIED = True

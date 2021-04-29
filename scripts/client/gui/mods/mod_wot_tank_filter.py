@@ -22,9 +22,9 @@ def startup():
     log.info('Welcome to WoT Tank Filter!')
     start_debug()
 
-    from wot_tank_filter_lib.tank_carousel_advices import advise as advise_tank_carousel
+    from mod_wot_tank_filter_lib.advices import advise
 
-    advise_tank_carousel()
+    advise()
 
 
 startup()
