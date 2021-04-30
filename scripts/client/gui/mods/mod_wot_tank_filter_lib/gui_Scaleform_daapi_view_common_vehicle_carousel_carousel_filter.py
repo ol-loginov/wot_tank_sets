@@ -11,4 +11,10 @@ def carousel_filter__load(base, self, *args, **kwargs):
     return base(self, *args, **kwargs)
 
 
-CAROUSEL_FILTER_MODIFIED = True
+@overrideMethod(CarouselFilter, 'update')
+def carousel_filter__update(base, self, *args, **kwargs):
+    params = args[0]
+    return base(self, *args, **kwargs)
+
+
+LOADED = True
