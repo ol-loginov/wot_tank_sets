@@ -51,6 +51,8 @@ def create_wotmod():
     with zipfile.ZipFile(wotmod_file, mode='w', compression=zipfile.ZIP_STORED) as out_file:
         walk_dir(wotmod_root, out_file)
 
+    log.info('Done! Result is in "%s"' % wotmod_file)
+
 
 def compile_sources():
     for root, dirs, files in os.walk(project_scripts):
@@ -93,4 +95,4 @@ def build():
 log.set_threshold(log.INFO)
 build()
 
-log.info('Done! Result is in "%s"' % wotmod_file)
+log.info('Done!')

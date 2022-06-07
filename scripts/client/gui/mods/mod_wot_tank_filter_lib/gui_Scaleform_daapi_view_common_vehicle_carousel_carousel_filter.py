@@ -8,7 +8,8 @@ log = logging.getLogger(__name__)
 
 @overrideMethod(CarouselFilter, 'load')
 def carousel_filter__load(base, self, *args, **kwargs):
-    return base(self, *args, **kwargs)
+    ret = base(self, *args, **kwargs)
+    return ret
 
 
 @overrideMethod(CarouselFilter, 'update')
