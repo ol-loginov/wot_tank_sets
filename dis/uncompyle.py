@@ -15,9 +15,9 @@ def uncompile_file(pyc_file):
     co_tokens = dis_tool.disassemble(co_bytes)
 
     code_generator = code_gen.CodeGenerator()
-    code_generator.generate(co_tokens)
-    for l in code_generator.lines:
-        print l[0], ": ", l[1]
+    statements = code_generator.generate_program(co_tokens)
+    for l in statements:
+        print l
 
 
 uncompile_file(input_file)

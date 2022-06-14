@@ -1,216 +1,156 @@
+# coding=utf-8
+
+from code_blocks import Block, BlockFactory, BlockMachine, ALL_GENERATORS
+from code_statements import Constant, Reference, Assign, FunctionCall, Returns, StatementBase, List, Set, UnpackSequence
+from dis_tool import Token, disassemble
+
+
 def not_implemented(m):
     raise NotImplementedError(m)
 
 
-class _Statement:
-    pass
-
-
-class _Named:
-    def __init__(self, name=None):
-        self.name = name
-
-    def store(self, name):
-        self.name = name
-
-
-class _LineStatement(_Named, _Statement):
-    def __init__(self, start_line=None):
-        _Named.__init__(self)
-        self.start_line = start_line
-
-
-class ImportName(_Named):
-    pass
-
-
-class Import(_LineStatement):
-    def __init__(self, fromlist, level, **kwargs):
-        _LineStatement.__init__(self, **kwargs)
-        self.fromlist = fromlist
-        self.level = level
-        self.imports = []
-
-    def add_import(self, source):
-        named = _Named()
-        named.source = source
-        self.imports.append(named)
-        return named
-
-
-class MakeFunction():
-    def __init__(self, co):
-        self.co = co
-
-
-class Loop(_LineStatement):
-    def __init__(self, iterator, **kwargs):
-        _LineStatement.__init__(self, **kwargs)
-        self.iterator = iterator
-
-
-class Iterator(_LineStatement):
-    def __init__(self, expression):
-        _LineStatement.__init__(self)
-        self.expression = expression
-
-
-class Reference:
-    def __init__(self, source):
-        self.source = source
-
-
-class Operation(_LineStatement):
-    def __init__(self, action, operands):
-        _LineStatement.__init__(self)
-        self.action = action
-        self.operands = operands
-
-
-class Compare(_LineStatement):
-    def __init__(self, action, operands):
-        _LineStatement.__init__(self)
-        self.action = action
-        self.operands = operands
-
-
-class CallFunction(_LineStatement):
-    def __init__(self, function, positional_args, keyword_args):
-        _LineStatement.__init__(self)
-        self.function = function
-        self.positional_args = positional_args
-        self.keyword_args = keyword_args
-
-
-class Assign(_LineStatement):
-    def __init__(self, name, expression):
-        _LineStatement.__init__(self)
-        self.name = name
-        self.expression = expression
-
-
-class ListInstance(_LineStatement):
-    def __init__(self, content):
-        _LineStatement.__init__(self)
-        self.content = content
-
-
-class CodeGenerator:
+class CodeGenerator(BlockMachine):
     def __init__(self):
-        self.lines = []
-        self.line = 0
-        self.statements = []
         self.tos = []
-        self.blocks = []
-
-    def generate(self, tokens):
-        self._visit(tokens)
 
     def tos_push(self, ob):
-        if isinstance(ob, _Statement):
-            self.statement_register(ob)
         self.tos.append(ob)
-
-    def tos_pop_list(self, count):
-        return list(map(lambda x: self.tos.pop(), range(0, count)))
 
     def tos_pop(self):
         return self.tos.pop()
 
-    def tos_peek(self):
-        return self.tos[-1]
+    def generate_bytecode(self, co):
+        co_tokens = disassemble(co)
+        generator = CodeGenerator()
+        return generator.generate_program(co_tokens)
 
-    def statement_register(self, statement):
-        if statement not in self.statements:
-            statement.start_line = self.line
-            self.statements.append(statement)
+    def generate_program(self, tokens):
+        statements = self.generate_slice(tokens)
+        assert len(self.tos) == 0
+        return statements
 
-    def _visit(self, tokens):
-        def forget_statement_one(statement):
-            if statement in self.statements:
-                self.statements.remove(statement)
+    def generate_slice(self, tokens):
+        """
+        :param list of Token tokens: list of tokens
+        """
+        # re-enumerate lines
+        for i in range(1, len(tokens)):
+            token = tokens[i]
+            token.line = token.line if token.line is not None else tokens[i - 1].line
 
-        def forget_statement(*args):
-            for statement in args:
-                forget_statement_one(statement)
-            return args[0]
+        return self._generate_execute_statements(tokens)
 
-        def forget_statement_list(*args):
-            for statement_list in args:
-                for statement in statement_list:
-                    forget_statement_one(statement)
-            return args[0]
+    @staticmethod
+    def _generate_blocks(tokens):
+        """
+        :param list of Token tokens: list of tokens
+        """
 
-        def offset_index(offset, start_from=0):
-            index = start_from
-            while index < len(tokens):
-                if tokens[index].offset == offset:
-                    return index
-                index += 1
-            not_implemented('cannot find token for offset ' + offset)
+        # сначала обработаем все "блоки", начиная с самого последнего
+        block_ops = set(ALL_GENERATORS.keys())
+        i = len(tokens) - 1
+        while i >= 0:
+            token = tokens[i]
+            if isinstance(token.op, str) and token.op in block_ops:
+                generator = ALL_GENERATORS[token.op]  # type: BlockFactory
 
+                # get list of block tokens
+                block_start = generator.find_start_token(tokens, i)
+                block_end = generator.find_final_token(tokens, i)
+                block_tokens = tokens[block_start:block_end]
+
+                # replace block with one expression
+                tokens = tokens[:block_start] + generator.generate_block(block_tokens) + tokens[block_end:]
+                i = block_start
+            i -= 1
+        return tokens
+
+    def _generate_execute_statements(self, tokens):
+        """
+        :param list of Token tokens:
+        :rtype: list of StatementBase
+        """
+        # это будет нашей ответкой
+        statements = []
+        # сначала схлопнем блоки
+        tokens = self._generate_blocks(tokens)
+
+        # теперь можно пройтись виртуальной машиной
+        line = 0
         i = 0
-
         while i < len(tokens):
             token = tokens[i]
-            if token.line is not None:
-                self.line = token.line
-            if token.op == 'LOAD_CONST':
-                self.tos_push(token.arg)
-            elif token.op == 'IMPORT_NAME':
-                self.tos_push(Import(self.tos_pop(), self.tos_pop()))
-            elif token.op == 'IMPORT_FROM':
-                op = self.tos_peek().add_import(token.arg)
-                self.tos_push(op)
-            elif token.op == 'STORE_NAME':
-                source = self.tos_pop()
-                if hasattr(source, 'store'):
-                    source.store(token.arg)
-                else:
-                    self.statement_register(Assign(token.arg, source))
-            elif token.op == 'POP_TOP':
-                self.tos_pop()
-            elif token.op == 'BUILD_LIST':
-                arg = list(map(lambda x: self.tos_pop(), range(0, token.arg)))
-                forget_statement_list(arg)
-                self.tos_push(ListInstance(arg))
-            elif token.op == 'MAKE_FUNCTION':
-                function = forget_statement(self.tos_pop())
-                self.tos_push(MakeFunction(function))
-            elif token.op == 'SETUP_LOOP':
-                loop_end = offset_index(token.arg, i)
-                loop_code = tokens[i + 1:loop_end]
-                self.blocks.append(loop_code)
-                self._visit(loop_code)
-                i = loop_end
-            elif token.op == 'GET_ITER':
-                iterable = forget_statement(self.tos_pop())
-                self.tos_push(Iterator(iterable))
-            elif token.op == 'FOR_ITER':
-                iter_end = offset_index(token.arg, i)
-                iter_code = tokens[i + 1:iter_end]
-                self.tos_push(self.tos_peek())
-                self._visit(iter_code)
-                self.tos_pop()
-                i = iter_end
-            elif token.op == 'LOAD_NAME':
-                self.tos_push(Reference(token.arg))
-            elif token.op == 'BINARY_ADD':
-                self.tos_push(Operation('+', self.tos_pop_list(2)))
-            elif token.op == 'CALL_FUNCTION':
-                positional_args = self.tos_pop_list(token.arg & 0xFF)
-                keyword_args = self.tos_pop_list((token.arg >> 8) & 0xFF)
-                forget_statement_list(positional_args, keyword_args)
-                func_reference = self.tos_pop()
-                forget_statement(func_reference)
-                self.tos_push(CallFunction(func_reference, positional_args, keyword_args))
-            elif token.op == 'COMPARE_OP':
-                compare_args = self.tos_pop_list(2)
-                forget_statement_list(compare_args)
-                self.tos_push(Compare(token.arg, compare_args))
-            elif token.op == 'POP_JUMP_IF_FALSE':
-                op = self.tos_pop()
-            else:
-                not_implemented('Unexpected op ' + token.op)
-
             i += 1
+
+            op = token.op
+            line = token.line if token.line is not None else line
+            # uppercase op - это железная операция
+            # lowercase op - это блок
+            if op.islower():
+                assert isinstance(token, Block)
+                block_statements = token.generate_statements(self)
+                statements.extend(block_statements)
+                continue
+
+            if op == 'LOAD_CONST':
+                self.tos_push(Constant(token.offset, line, token.arg))
+            elif op == 'LOAD_NAME':
+                self.tos_push(Reference(token.offset, line, token.arg))
+            elif op == 'STORE_NAME':
+                statements.append(Assign(token.offset, line, token.arg, self.tos_pop()))
+            elif op == 'POP_TOP':
+                last = self.tos_pop()
+                if isinstance(last, StatementBase):
+                    statements.append(last)
+            elif op == 'BUILD_LIST':
+                length = token.arg_int()
+                values = [self.tos_pop() for x in range(0, length)]
+                self.tos_push(List(token.offset, line, values))
+            elif op == 'BUILD_SET':
+                length = token.arg_int()
+                values = [self.tos_pop() for x in range(0, length)]
+                self.tos_push(Set(token.offset, line, values))
+            elif op == 'RETURN_VALUE':
+                statements.append(Returns(token.offset, line, self.tos_pop()))
+            elif op == 'UNPACK_SEQUENCE':
+                (i, unpack) = self.generate_execute_unpack(tokens, i - 1)
+                statements.append(unpack)
+            elif op == 'CALL_FUNCTION':
+                argument_count = token.arg_int()
+                positional_args = [self.tos_pop() for _ in range(0, argument_count & 0xFF)]
+                keyword_args = [(self.tos_pop(), self.tos_pop()) for _ in range(0, (argument_count >> 8) & 0xFF)]
+                function = self.tos_pop()
+                self.tos_push(FunctionCall(token.offset, line, function, positional_args, keyword_args))
+            else:
+                not_implemented('unknown token ' + op)
+
+        # и ответ
+        return statements
+
+    def generate_execute_unpack(self, tokens, at):
+        """
+        :param list of Token tokens: token list
+        :param int at: position with UNPACK_SEQUENCE token
+        :return: index after unpack operations and unpack statement
+        :rtype: (int, UnpackSequence)
+        """
+
+        WRITE NEW UNPACK
+
+        while at < len(tokens) and tokens[at].op == 'UNPACK_SEQUENCE':
+            token = tokens[at]
+            expr = self.tos_pop()
+            self.tos_push(UnpackSequence(token.offset, token.line, token.arg, expr))
+            at += 1
+            count += token.arg if not isinstance(expr, UnpackSequence) else token.arg_int() - 1
+
+        stores = []
+        while at < len(tokens) and tokens[at].op == 'STORE_NAME' and len(stores) < count:
+            stores.append(tokens[at].arg)
+            at += 1
+
+        assert len(stores) == count
+        unpack = self.tos_pop()
+        unpack.store(stores)
+
+        return at, unpack

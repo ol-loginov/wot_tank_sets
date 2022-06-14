@@ -7,9 +7,21 @@ from dis import dis, \
 
 
 def test(): pass
+test()
 
+[test(), test()]
+{test(), test()}
+{'a': test(), 'b': test()}
 
-for x in [0, 1]: x(x + 1)
+(a, b) = test()
+((a, b), c) = test()
+((a, (b, c)), c) = test()
+[a, b, c, _] = test()
+
+x = None
+for _ in [0, 1]: x(x + 1)
+
+for ((x, (y, z)), c) in [0, 1]: x(x + 1)
 
 while True if x % 2 == 1 else False: print 1
 
@@ -28,7 +40,7 @@ for i in range(0, len(__file__)):
     print i
 
 
-def test2(): exit(3); \
+def test2(op): exit(3); \
         exit(4)
 
 
@@ -39,3 +51,22 @@ class Test: pass
 
 
 class Test2: 1 == 1
+
+test2({'A': 'A', 'B':'B'})
+test2(
+    {
+    'C': 'C',
+    'D':'D'}
+)
+
+class_list= {
+    'KEY': Test,
+    'VALUE': test()
+}
+
+nested_map = {
+    'A': {
+        'B': 'C'
+    },
+    'D': exit(1)
+}

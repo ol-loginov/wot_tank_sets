@@ -1,6 +1,24 @@
 import dis
 
 
+def panic(m):
+    raise RuntimeError(m)
+
+
+def token_index_at_offset(tokens, offset):
+    for i in range(0, len(tokens)):
+        if tokens[i].offset == offset:
+            return i
+    panic("cannot find token at offset " + str(offset))
+
+
+def token_index_with_test(tokens, test, from_index=0):
+    for i in range(from_index, len(tokens)):
+        if test(tokens[i]):
+            return i
+    return None
+
+
 def disassemble(co):
     out = []
 
@@ -13,6 +31,12 @@ def disassemble(co):
 
 class Token:
     def __init__(self, offset, line, op, arg):
+        """
+        :param int offset:
+        :param int|None line:
+        :param str op:
+        :param object arg:
+        """
         self.offset = offset
         self.line = line
         self.op = op
@@ -20,6 +44,13 @@ class Token:
 
     def __str__(self):
         return '%s [%s]: %s %s' % (self.offset, self.line, self.op, self.arg)
+
+    def arg_int(self):
+        """
+        :rtype: int
+        """
+        assert isinstance(self.arg, int)
+        return self.arg
 
 
 def _disassemble(co, receiver, lasti=-1):
@@ -35,10 +66,12 @@ def _disassemble(co, receiver, lasti=-1):
         c = code[i]
         op = ord(c)
 
+        op_offset = i
         op_line = linestarts[i] if i in linestarts else None
 
         if i in linestarts:
-            if i > 0: print
+            if i > 0:
+                print
             print "%3d" % op_line,
         else:
             print '   ',
@@ -90,4 +123,4 @@ def _disassemble(co, receiver, lasti=-1):
                 print '(' + op_arg + ')',
         print
 
-        receiver(Token(i, op_line, op_name, op_arg))
+        receiver(Token(op_offset, op_line, op_name, op_arg))
