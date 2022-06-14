@@ -135,7 +135,9 @@ class CodeGenerator(BlockMachine):
         :rtype: (int, UnpackSequence)
         """
 
-        WRITE NEW UNPACK
+        WRITE
+        NEW
+        UNPACK
 
         while at < len(tokens) and tokens[at].op == 'UNPACK_SEQUENCE':
             token = tokens[at]
