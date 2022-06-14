@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from code_statements import Constant, ImportStatement, StatementBase, FunctionDef, Map, For
+from code_statements import Constant, Import, StatementBase, FunctionDef, Map, For
 from dis_tool import Token, token_index_at_offset, token_index_with_test
 
 
@@ -93,10 +93,13 @@ class ImportBlock(Token, Block):
             elif t.op == 'IMPORT_NAME':
                 generator.tos_pop()  # fromlist
                 generator.tos_pop()  # level
-                statement = ImportStatement(self.offset, self.line, t.arg)
+                statement = Import(self.offset, self.line, t.arg)
                 generator.tos_push(statement)
             elif t.op == 'IMPORT_FROM':
                 generator.tos_push(t.arg)
+            elif t.op == 'IMPORT_STAR':
+                generator.tos_pop()
+                statement.add_import('*', '*')
             elif t.op == 'STORE_NAME':
                 imported = generator.tos_pop()
                 if isinstance(imported, str):
@@ -113,7 +116,7 @@ class ImportBlockFactory(BlockFactory):
         return block_start - 2
 
     def find_final_token(self, tokens, start_index):
-        next_tokens = {'STORE_NAME', 'IMPORT_FROM'}
+        next_tokens = {'STORE_NAME', 'IMPORT_FROM', 'IMPORT_STAR'}
         end_index = start_index + 1
         end_with_pop_top = False
         while end_index < len(tokens) and tokens[end_index].op in next_tokens:

@@ -14,7 +14,6 @@ mod_id = mod_author_id + '.' + mod_pack_id
 # current folder
 project_folder = os.path.dirname(os.path.abspath(__file__))
 project_scripts = os.path.join(project_folder, 'scripts')
-project_dis = os.path.join(project_folder, 'dis')
 
 # sources & targets
 target_folder = os.path.join(project_folder, 'target')
@@ -67,8 +66,6 @@ def compile_sources():
                 compile(src, doraise=True)
 
     for root, dirs, files in os.walk(project_scripts):
-        recompile(files)
-    for root, dirs, files in os.walk(project_dis):
         recompile(files)
 
 
