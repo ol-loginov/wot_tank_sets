@@ -1,13 +1,16 @@
 # coding=utf-8
 
 from code_blocks import Block, BlockFactory, BlockMachine, ALL_GENERATORS
-from code_statements import Import, Constant, Reference, Assign, FunctionCall, Returns, StatementBase, List, Set, \
-    StatementWriter
+from code_statements import Import, Constant, Reference, Assign, FunctionCall, Returns, StatementBase, List, Set, CodeWriter, Tuple, UnpackOperation, UnpackReceiver, StoreReceiver, CodeMerge
 from dis_tool import Token, disassemble
 
 
 def not_implemented(m):
     raise NotImplementedError(m)
+
+
+def panic(m):
+    raise RuntimeError(m)
 
 
 class CodeGenerator(BlockMachine):
@@ -17,6 +20,12 @@ class CodeGenerator(BlockMachine):
     def tos_push(self, ob):
         self.tos.append(ob)
 
+    def tos_peek(self):
+        return self.tos[-1]
+
+    def tos_push_all(self, ob_list):
+        self.tos.extend(ob_list)
+
     def tos_pop(self):
         assert len(self.tos) > 0
         return self.tos.pop()
@@ -24,12 +33,12 @@ class CodeGenerator(BlockMachine):
     def generate_bytecode(self, co):
         co_tokens = disassemble(co)
         generator = CodeGenerator()
-        return generator.generate_program(co_tokens)
+        return generator.generate_program(co_tokens, ignore_last_return=False)
 
-    def generate_program(self, tokens):
+    def generate_program(self, tokens, ignore_last_return=True):
         statements = self.generate_slice(tokens)
         assert len(self.tos) == 0
-        if len(statements) > 0 and isinstance(statements[-1], Returns):
+        if ignore_last_return and len(statements) > 0 and isinstance(statements[-1], Returns):
             statements = statements[:-1]
         statements = simplify_statements(statements)
         return statements
@@ -83,74 +92,112 @@ class CodeGenerator(BlockMachine):
         # теперь можно пройтись виртуальной машиной
         line = 0
         i = 0
-        while i < len(tokens):
-            token = tokens[i]
-            i += 1
 
-            op = token.op
-            line = token.line if token.line is not None else line
-            # uppercase op - это железная операция
-            # lowercase op - это блок
-            if op.islower():
-                assert isinstance(token, Block)
-                block_statements = token.generate_statements(self)
-                statements.extend(block_statements)
-                continue
-
-            if op == 'LOAD_CONST':
-                self.tos_push(Constant(token.offset, line, token.arg))
-            elif op == 'LOAD_GLOBAL':
-                self.tos_push(Reference(token.offset, line, token.arg))
-            elif op == 'LOAD_NAME':
-                self.tos_push(Reference(token.offset, line, token.arg))
-            elif op == 'STORE_NAME':
-                rexp = self.tos_pop()
-                if isinstance(rexp, UnpackOperation):
-                    rexp.store(token.arg)
-                    if rexp.is_complete():
-                        statements.append(rexp)
-                    else:
-                        self.tos_push(rexp)
-                else:
-                    statements.append(Assign(token.offset, line, token.arg, rexp))
-            elif op == 'POP_TOP':
-                last = self.tos_pop()
-                if isinstance(last, StatementBase):
-                    statements.append(last)
-            elif op == 'BUILD_LIST':
-                length = token.arg_int()
-                values = [self.tos_pop() for x in range(0, length)]
-                self.tos_push(List(token.offset, line, values))
-            elif op == 'BUILD_SET':
-                length = token.arg_int()
-                values = [self.tos_pop() for x in range(0, length)]
-                self.tos_push(Set(token.offset, line, values))
-            elif op == 'RETURN_VALUE':
-                statements.append(Returns(token.offset, line, self.tos_pop()))
-            elif op == 'UNPACK_SEQUENCE':
-                source = self.tos_pop()
-                unpack = UnpackOperation(token, token.arg_int(), source)
-                self.tos_push(unpack)
-            elif op == 'CALL_FUNCTION':
-                argument_count = token.arg_int()
-                positional_args = [self.tos_pop() for _ in range(0, argument_count & 0xFF)]
-                keyword_args = [(self.tos_pop(), self.tos_pop()) for _ in range(0, (argument_count >> 8) & 0xFF)]
-                function = self.tos_pop()
-                self.tos_push(FunctionCall(token.offset, line, function, positional_args, keyword_args))
+        def op_store_name(t):
+            rexp = self.tos_pop()
+            if isinstance(rexp, StoreReceiver):
+                rexp.store(t.arg)
             else:
-                not_implemented('unknown token ' + op)
+                statements.append(Assign(t.offset, line, Reference(t.offset, line, t.arg), rexp))
 
-        # и ответ
+        def op_pop_top(_):
+            last = self.tos_pop()
+            if isinstance(last, StatementBase):
+                statements.append(last)
+
+        def op_build_list(t):
+            length = t.arg_int()
+            values = [self.tos_pop() for x in range(0, length)]
+            values.reverse()
+            self.tos_push(List(t.offset, line, values))
+
+        def op_build_tuple(t):
+            length = t.arg_int()
+            values = [self.tos_pop() for _ in range(0, length)]
+            values.reverse()
+            self.tos_push(Tuple(t.offset, line, values))
+
+        def op_build_set(t):
+            length = t.arg_int()
+            values = [self.tos_pop() for x in range(0, length)]
+            values.reverse()
+            self.tos_push(Set(t.offset, line, values))
+
+        def op_unpack_sequence(t):
+            source = self.tos_pop()
+            if isinstance(source, UnpackReceiver):
+                unpack = source
+            else:
+                unpack = UnpackOperation(i, line, source)
+                statements.append(unpack)
+            self.tos_push_all(unpack.create_receivers(t.arg_int()))
+
+        def op_call_function(t):
+            argument_count = t.arg_int()
+            positional_args = [self.tos_pop() for _ in range(0, argument_count & 0xFF)]
+            keyword_args = [(self.tos_pop(), self.tos_pop()) for _ in range(0, (argument_count >> 8) & 0xFF)]
+            function = self.tos_pop()
+            self.tos_push(FunctionCall(t.offset, line, function, positional_args, keyword_args))
+
+        def op_rot_three(t):
+            [a, b, c] = [self.tos_pop(), self.tos_pop(), self.tos_pop()]
+            self.tos_push_all([a, c, b])
+
+        def op_rot_two(t):
+            [a, b] = [self.tos_pop(), self.tos_pop()]
+            self.tos_push_all([a, b])
+
+        op_processors = {
+            'LOAD_CONST': lambda t: self.tos_push(Constant(t.offset, line, t.arg)),
+            'LOAD_GLOBAL': lambda t: self.tos_push(Reference(t.offset, line, t.arg)),
+            'LOAD_NAME': lambda t: self.tos_push(Reference(t.offset, line, t.arg)),
+            'STORE_NAME': op_store_name,
+            'POP_TOP': op_pop_top,
+            'BUILD_LIST': op_build_list,
+            'BUILD_TUPLE': op_build_tuple,
+            'BUILD_SET': op_build_set,
+            'RETURN_VALUE': lambda t: statements.append(Returns(t.offset, line, self.tos_pop())),
+            'UNPACK_SEQUENCE': op_unpack_sequence,
+            'CALL_FUNCTION': op_call_function,
+            'ROT_THREE': op_rot_three,
+            'ROT_TWO': op_rot_two,
+        }
+
+        try:
+            while i < len(tokens):
+                token = tokens[i]
+                i += 1
+
+                op = token.op
+                line = token.line if token.line is not None else line
+                # uppercase op - это операция bytecode
+                # lowercase op - это операция блока
+                if op.islower():
+                    assert isinstance(token, Block)
+                    block_statements = token.generate_statements(self)
+                    statements.extend(block_statements)
+                    continue
+
+                if op not in op_processors:
+                    not_implemented('unknown token ' + op)
+
+                op_processors[op](token)
+        except Exception as error:
+            error.args = error.args + ({'line': line, 'bytecode_offset': i},)
+            raise
+
+            # и ответ
         return statements
 
-    def statements_text(self, statements):
+    @staticmethod
+    def statements_text(statements):
         """
         :param list of StatementBase statements: statements to render
-        :return:
+        :rtype: str
         """
-        writer = StatementWriter()
-        for statement in statements:
-            statement.write(writer)
+        writer = CodeWriter()
+        for i, statement in enumerate(statements):
+            writer.add_writer(statement.write(), CodeMerge.semicolon(i))
 
         return writer.text()
 
@@ -170,16 +217,3 @@ def simplify_statements(statements):
                 statements.remove(b)
         i += 1
     return statements
-
-
-class UnpackOperation(Token):
-    def __init__(self, t, count, expr):
-        Token.__init__(self, t.offset, t.line, 'unpack', count)
-        self.expr = expr
-        self.names = []
-
-    def store(self, name):
-        self.names.append(name)
-
-    def is_complete(self):
-        return len(self.names) == self.arg_int()

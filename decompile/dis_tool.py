@@ -19,6 +19,15 @@ def token_index_with_test(tokens, test, from_index=0):
     return None
 
 
+def token_index_after_last(tokens, test, from_index=0):
+    i = from_index
+    while i < len(tokens):
+        if not test(tokens[i]):
+            return i
+        i += 1
+    return i
+
+
 def disassemble(co):
     out = []
 

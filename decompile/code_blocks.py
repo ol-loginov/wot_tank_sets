@@ -1,7 +1,7 @@
 # coding=utf-8
 
-from code_statements import Constant, Import, StatementBase, FunctionDef, Map, For
-from dis_tool import Token, token_index_at_offset, token_index_with_test
+from code_statements import Constant, Import, StatementBase, FunctionDef, Map, For, Pass
+from dis_tool import Token, token_index_at_offset, token_index_with_test, token_index_after_last
 
 
 def panic(m):
@@ -21,6 +21,13 @@ class BlockMachine:
         """
         panic('should override "tos_push" in ' + self.__class__.__name__)
 
+    def tos_peek(self):
+        """
+        peek element from VM stack and return it
+        :rtype: Any
+        """
+        panic('should override "tos_peek" in ' + self.__class__.__name__)
+
     def generate_bytecode(self, co):
         """
         :param code co:
@@ -34,6 +41,14 @@ class BlockMachine:
         :rtype: list of StatementBase
         """
         panic('should override "generate_block" in ' + self.__class__.__name__)
+
+    def generate_loop(self, tokens, loop_start_offset):
+        """
+        :param list of Token tokens:
+        :param int loop_start_offset:
+        :rtype: list of StatementBase
+        """
+        panic('should override "generate_loop" in ' + self.__class__.__name__)
 
 
 # noinspection PyClassHasNoInit
@@ -152,18 +167,36 @@ class LoopBlock(Token, Block):
         body_tokens = self.loop_block[body_token_start:]
 
         if body_tokens[0].op == 'FOR_ITER':
-            # это цикл for
-            assert head_tokens[-1].op == 'GET_ITER'
-            iterator_statements = generator.generate_slice(head_tokens[:-1])
-            assert len(iterator_statements) == 0
-            iterator = generator.tos_pop()
-
-            statement = For(self.offset, self.line, iterator)
+            # это цикл for ... in
+            return self._generate_foreach(generator, head_tokens, body_tokens)
         else:
             # это цикл while
-            pass
+            return self._generate_while(generator, head_tokens, body_tokens)
 
-        pass
+    def _generate_foreach(self, generator, head_tokens, body_tokens):
+        # ищем генератор
+        assert head_tokens[-1].op == 'GET_ITER'
+
+        iterator_statements = generator.generate_slice(head_tokens[:-1])
+        # должен остаться один элемент в стеке, и ни одного statements-а
+        assert len(iterator_statements) == 0
+
+        # ищем unpack
+        loop_iter = body_tokens[0]
+        assert loop_iter.op == 'FOR_ITER'
+
+        assign_ops = ('STORE_NAME', 'UNPACK_SEQUENCE')
+        assign_end = token_index_after_last(body_tokens, lambda x: x.op in assign_ops, from_index=1)
+        foreach_expr = generator.generate_slice(body_tokens[1:assign_end])
+        assert len(foreach_expr) == 1
+        foreach_expr = foreach_expr[0]
+
+        loop_tokens = body_tokens[assign_end:]
+        loop_statements = generator.generate_loop(loop_tokens, loop_iter.offset)
+        return [For(self.offset, self.line, foreach_expr, loop_statements)]
+
+    def _generate_while(self, generator, head_tokens, body_tokens):
+        panic('while loop is not implemented')
 
 
 class LoopBlockFactory(BlockFactory):

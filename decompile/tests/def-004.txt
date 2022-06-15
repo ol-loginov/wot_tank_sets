@@ -1,0 +1,6 @@
+
+def test5():
+	return (test4(), 2)
+
+def test3(): exit(3)
+	exit(4); return None

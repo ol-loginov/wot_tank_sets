@@ -1,6 +1,0 @@
-'def test(): pass
-
-def test2():; exit() pass
-    exit()
-
-exit()'
