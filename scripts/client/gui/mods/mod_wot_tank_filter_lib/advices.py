@@ -7,8 +7,9 @@ log = logging.getLogger(__name__)
 def advise():
     log.info('override methods...')
 
-    from .gui_Scaleform_daapi_view_common_vehicle_carousel_carousel_filter import LOADED
-    from .gui_Scaleform_daapi_view_lobby_hangar_carousels_basic_tank_carousel import LOADED
-    from .gui_Scaleform_daapi_view_common_filter_popover import LOADED
+    from ._gui__Scaleform__daapi__view__common__filter_popover import LOADED
+    from ._gui__Scaleform__daapi__view__common__vehicle_carousel__carousel_filter import LOADED
+    from ._gui__Scaleform__daapi__view__lobby__hangar__carousels__basic__tank_carousel import LOADED
+    from ._account_helpers__accountsettings import LOADED
 
     log.info('override methods complete')

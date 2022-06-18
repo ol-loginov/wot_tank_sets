@@ -6,27 +6,11 @@
 
 import logging
 
-from account_helpers.accountsettings import AccountSettings, DEFAULT_VALUES, KEY_FILTERS
+from constants import USER_GROUP_FILTERS
 from gui.Scaleform.daapi.view.common.filter_popover import VehiclesFilterPopover, _SECTION
-from .events import (overrideMethod, overrideClassMethod, overrideStaticMethod)
+from .events import overrideMethod, overrideClassMethod
 
 log = logging.getLogger(__name__)
-
-USER_GROUP_LIMIT = 10
-USER_GROUP_MAPPING_PREFIX = 'usergroup_'
-USER_GROUP_FILTERS = [USER_GROUP_MAPPING_PREFIX + str(i) for i in range(1, USER_GROUP_LIMIT + 1)]
-
-for k in DEFAULT_VALUES[KEY_FILTERS].keys():
-    if k.endswith('CAROUSEL_FILTER_CLIENT_1'):
-        defaults = DEFAULT_VALUES[KEY_FILTERS][k]
-        for f in USER_GROUP_FILTERS:
-            defaults.update({f: False})
-
-
-@overrideStaticMethod(AccountSettings, 'getFilterDefault')
-def AccountSettings__getFilterDefault(base, _, *args, **kwargs):
-    ret = base(*args, **kwargs)
-    return ret
 
 
 @overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
@@ -47,7 +31,7 @@ def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
         filter_vo = special_vo[filter_index]
         filter_vo.update({
             'value': '../maps/icons/library/bonus_x.png',
-            'tooltip': "{HEADER}Aкционный опыт{/HEADER}{BODY}FuF-FuF{/BODY}",
+            'tooltip': "{HEADER}AкцXионный опыт{/HEADER}{BODY}FuF-FuF{/BODY}",
             'enabled': True
         })
 

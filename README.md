@@ -11,3 +11,7 @@ How-To Steps
 4) Clone "StranikS-Scan/WorldOfTanks-Decompiled" in some folder (let's name it [WOT-Decompiled])
 5) Create empty PyCharm project. Add "[WOT]/res_mods/[WOT Version]" as new content root to it, and "[WOT-Decompiled]" either
 
+
+# mod settings api
+
+https://wiki.wargaming.net/ru/ModsettingsAPI
