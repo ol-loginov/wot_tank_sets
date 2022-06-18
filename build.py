@@ -8,7 +8,7 @@ from py_compile import compile
 
 # mod props
 mod_author_id = 'com.github.ol_loginov'
-mod_pack_id = 'wot_tank_filter'
+mod_pack_id = 'wot_tank_groups'
 mod_id = mod_author_id + '.' + mod_pack_id
 
 # current folder

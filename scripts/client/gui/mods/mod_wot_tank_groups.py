@@ -31,7 +31,7 @@ def startup():
 
     log.info('Welcome to WoT Tank Filter!')
 
-    from mod_wot_tank_filter_lib.advices import advise
+    from mod_wot_tank_groups_lib.advices import advise
 
     advise()
 

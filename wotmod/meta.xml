@@ -1,10 +1,10 @@
 <root>
     <!-- Идентификатор пакета -->
-    <id>com.github.ol_loginov.wot_tank_filter</id>
+    <id>com.github.ol_loginov.wot_tank_groups</id>
     <!-- Версия пакета -->
     <version>0.1.0</version>
     <!-- Имя пакета понятное для пользователя -->
     <name>Custom Tank Filters</name>
     <!-- Описание пакета -->
-    <description>Add custom filters to tank carousel</description>
+    <description>Add collections to tank carousel</description>
 </root>
