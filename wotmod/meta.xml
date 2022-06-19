@@ -4,7 +4,7 @@
     <!-- Версия пакета -->
     <version>0.1.0</version>
     <!-- Имя пакета понятное для пользователя -->
-    <name>Custom Tank Filters</name>
+    <name>Tank User Collections</name>
     <!-- Описание пакета -->
     <description>Add collections to tank carousel</description>
 </root>

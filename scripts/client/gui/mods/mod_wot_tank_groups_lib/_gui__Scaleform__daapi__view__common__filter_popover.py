@@ -6,9 +6,10 @@
 
 import logging
 
-from constants import USER_GROUP_FILTERS
 from gui.Scaleform.daapi.view.common.filter_popover import VehiclesFilterPopover, _SECTION
+from .constants import TANK_COLLECTIONS_FILTERS, TANK_COLLECTIONS_NUMBERS, TANK_COLLECTIONS_FILTER_PREFIX
 from .events import overrideMethod, overrideClassMethod
+from .settings import Settings
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ log = logging.getLogger(__name__)
 @overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
 def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
     mapping = base(*args, **kwargs)
-    mapping[_SECTION.SPECIALS].extend(USER_GROUP_FILTERS)
+    mapping[_SECTION.SPECIALS].extend(TANK_COLLECTIONS_FILTERS)
     return mapping
 
 
@@ -26,13 +27,15 @@ def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
 
     special_vo = ret['specials']
     special_mapping = self._VehiclesFilterPopover__mapping[_SECTION.SPECIALS]
-    for f in USER_GROUP_FILTERS:
-        filter_index = special_mapping.index(f)
+    for n in TANK_COLLECTIONS_NUMBERS:
+        filter_index = special_mapping.index(TANK_COLLECTIONS_FILTER_PREFIX + str(n))
         filter_vo = special_vo[filter_index]
+
+        collection = Settings.collection(n)
         filter_vo.update({
-            'value': '../maps/icons/library/bonus_x.png',
-            'tooltip': "{HEADER}AкцXионный опыт{/HEADER}{BODY}FuF-FuF{/BODY}",
-            'enabled': True
+            'value': collection.icon,
+            'tooltip': "{HEADER}%s{/HEADER}{BODY}%s{/BODY}" % (collection.title, collection.tooltip),
+            'enabled': collection.enabled
         })
 
     return ret
@@ -40,9 +43,7 @@ def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
 
 @overrideMethod(VehiclesFilterPopover, '_getUpdateVO')
 def _VehiclesFilterPopover_getUpdateVO(base, self, *args, **kwargs):
-    filters = args[0]
-    ret = base(self, *args, **kwargs)
-    return ret
+    return base(self, *args, **kwargs)
 
 
 LOADED = True

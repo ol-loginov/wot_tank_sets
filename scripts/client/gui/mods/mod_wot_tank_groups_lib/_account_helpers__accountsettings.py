@@ -1,7 +1,7 @@
 # coding=utf-8
 from logging import getLogger
 
-from constants import is_carousel_filter_client_section, USER_GROUP_FILTERS
+from .constants import is_carousel_filter_client_section, TANK_COLLECTIONS_FILTERS
 
 log = getLogger(__name__)
 
@@ -14,7 +14,7 @@ def _add_user_group_filters_to_defaults():
     # noinspection PyUnresolvedReferences
     from account_helpers.AccountSettings import DEFAULT_VALUES, KEY_FILTERS
 
-    filter_update = {key: False for key in USER_GROUP_FILTERS}
+    filter_update = {key: False for key in TANK_COLLECTIONS_FILTERS}
 
     default_filters = DEFAULT_VALUES[KEY_FILTERS]
     changed_filters = []
@@ -23,9 +23,6 @@ def _add_user_group_filters_to_defaults():
             continue
         value.update(filter_update)
         changed_filters.append(key)
-
-    # log.debug("id(DEFAULT_VALUES[KEY_FILTERS])=" + str(id(default_filters)))
-    pass
 
 
 _add_user_group_filters_to_defaults()

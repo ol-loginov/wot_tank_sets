@@ -25,15 +25,26 @@ def start_debug():
         log.error('Debug error!', exc_info=e)
 
 
+# noinspection PyBroadException
 def startup():
     if DEBUG:
         start_debug()
 
     log.info('Welcome to WoT Tank Filter!')
 
-    from mod_wot_tank_groups_lib.advices import advise
+    try:
+        from mod_wot_tank_groups_lib.settings import Settings
+        Settings.init()
+    except:
+        log.exception("cannot initialize settings")
+        return
 
-    advise()
+    try:
+        from mod_wot_tank_groups_lib.advices import advise
+        advise()
+    except:
+        log.exception("cannot advise to code")
+        return
 
 
 startup()

@@ -2,8 +2,7 @@ import logging
 
 from account_helpers.settings_core.ServerSettingsManager import ServerSettingsManager
 
-from constants import is_carousel_filter_client_section
-from events import overrideMethod
+from .events import overrideMethod
 
 log = logging.getLogger(__name__)
 
