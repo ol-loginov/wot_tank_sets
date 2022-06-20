@@ -17,3 +17,7 @@ How-To Steps
 https://wiki.wargaming.net/ru/ModsettingsAPI
 https://bitbucket.org/IzeBerg/modssettingsapi
 
+# get tankopedia
+
+items_cache = dependency.descriptor(IItemsCache)
+items_cache.items.getVehicleDossiersIterator()

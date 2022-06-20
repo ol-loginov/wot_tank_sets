@@ -1,23 +1,35 @@
-import logging
+from logging import getLogger
 
-# from gui.shared.gui_items.Vehicle import VEHICLE_CLASS_NAME
-# from account_helpers.AccountSettings import AccountSettings, DEFAULT_VALUES, KEY_FILTERS
+from gui.shared.utils.requesters.ItemsRequester import REQ_CRITERIA
 
-from gui.Scaleform.daapi.view.common.vehicle_carousel.carousel_filter import CarouselFilter
+from gui.Scaleform.daapi.view.common.vehicle_carousel.carousel_filter import BasicCriteriesGroup
+from .constants import tank_collection_mapping
 from .events import overrideMethod
+from .settings import Settings as S
 
-log = logging.getLogger(__name__)
-
-
-@overrideMethod(CarouselFilter, 'load')
-def carousel_filter__load(base, self, *args, **kwargs):
-    # log.info("id(DEFAULT_VALUES[KEY_FILTERS])" + str(id(DEFAULT_VALUES[KEY_FILTERS])))
-    return base(self, *args, **kwargs)
+log = getLogger(__name__)
 
 
-@overrideMethod(CarouselFilter, 'update')
-def carousel_filter__update(base, self, *args, **kwargs):
-    return base(self, *args, **kwargs)
+@overrideMethod(BasicCriteriesGroup, 'update')
+def BasicCriteriesGroup__update(base, self, filters, *args, **kwargs):
+    ret = base(self, filters, *args, **kwargs)
+    log.info('filters: ' + repr(filters))
+
+    tanks = set()
+    has_applied_filter = False
+    for n in S.get_filter_mappings_enabled():
+        if tank_collection_mapping(n) in filters and filters[tank_collection_mapping(n)]:
+            tanks |= set(S.collection(n).tanks)
+            has_applied_filter = True
+
+    if has_applied_filter:
+        self._criteria |= REQ_CRITERIA.CUSTOM(lambda item: _apply_tank_group_filters(item, tanks))
+    return ret
+
+
+def _apply_tank_group_filters(item, selected_tanks):
+    # log.info('filter tank: ' + str(item.invID))
+    return item.invID in selected_tanks
 
 
 LOADED = True
