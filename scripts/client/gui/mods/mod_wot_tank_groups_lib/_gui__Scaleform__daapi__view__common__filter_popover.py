@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 @overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
 def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
     mapping = base(*args, **kwargs)
-    mapping[_SECTION.SPECIALS].extend([tank_collection_mapping(n) for n in S.get_filter_mappings_enabled()])
+    mapping[_SECTION.SPECIALS].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
     return mapping
 
 

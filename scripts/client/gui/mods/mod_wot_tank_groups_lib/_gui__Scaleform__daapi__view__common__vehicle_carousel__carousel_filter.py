@@ -17,7 +17,7 @@ def BasicCriteriesGroup__update(base, self, filters, *args, **kwargs):
 
     tanks = set()
     has_applied_filter = False
-    for n in S.get_filter_mappings_enabled():
+    for n in S.get_tc_numbers_enabled():
         if tank_collection_mapping(n) in filters and filters[tank_collection_mapping(n)]:
             tanks |= set(S.collection(n).tanks)
             has_applied_filter = True

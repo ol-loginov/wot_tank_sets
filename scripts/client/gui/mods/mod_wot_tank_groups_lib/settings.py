@@ -89,13 +89,13 @@ class Settings:
             json.dump(_current_settings, f_out, encoding='utf-8', indent=True, sort_keys=True)
 
     @staticmethod
-    def get_filter_mappings_all():
+    def get_tc_numbers_all():
         return list(range(1, TANK_COLLECTIONS_LIMIT + 1))
 
     @staticmethod
-    def get_filter_mappings_enabled():
+    def get_tc_numbers_enabled():
         out = []
-        for n in Settings.get_filter_mappings_all():
+        for n in Settings.get_tc_numbers_all():
             collection_info = Settings.collection(n)
             if collection_info.enabled:
                 out.append(n)
@@ -114,21 +114,26 @@ class Settings:
 
     @staticmethod
     def collection(collection_number):
-        """
-        :param int collection_number: 1 .. 10
-        :rtype: CollectionData
-        """
         key = _COLLECTION_KEY % collection_number
         return CollectionData(collection_number, _current_settings[key])
 
     @staticmethod
     def add_tank_to_collection(collection_number, tank):
         key = _COLLECTION_KEY % collection_number
-        _current_settings[key]['tanks'].append(tank)
-        Settings.save()
+        tanks = _current_settings[key]['tanks']
+        if tank not in tanks:
+            tanks.append(tank)
+            Settings.save()
 
     @staticmethod
     def remove_tank_from_collection(collection_number, tank):
         key = _COLLECTION_KEY % collection_number
-        _current_settings[key]['tanks'].remove(tank)
-        Settings.save()
+        tanks = _current_settings[key]['tanks']
+        if tank in tanks:
+            tanks.remove(tank)
+            Settings.save()
+
+    @staticmethod
+    def remove_tank_from_all_collections(tank):
+        for n in Settings.get_tc_numbers_all():
+            Settings.remove_tank_from_collection(n, tank)

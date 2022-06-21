@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 # EventHook
 
 class EventHook(object):
-
     def __init__(self):
         self.__handlers = []
 
@@ -61,6 +60,13 @@ def __event_handler(prepend, e, m, *a, **k):
         return r
     except e:
         log.exception('event handler failure', e)
+
+
+def add_attr(cls, attr, value):
+    if not hasattr(cls, attr):
+        setattr(cls, attr, value)
+        return True
+    return False
 
 
 def _override(cls, method, newm):

@@ -15,7 +15,7 @@ def _add_user_group_filters_to_defaults():
     # noinspection PyUnresolvedReferences
     from account_helpers.AccountSettings import DEFAULT_VALUES, KEY_FILTERS
 
-    filter_update = [(tank_collection_mapping(n), False) for n in S.get_filter_mappings_all()]
+    filter_update = [(tank_collection_mapping(n), False) for n in S.get_tc_numbers_all()]
     filter_update = dict(filter_update)
 
     default_filters = DEFAULT_VALUES[KEY_FILTERS]
