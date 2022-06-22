@@ -6,7 +6,7 @@ from .constants import MOD_LANGUAGE
 from .util import vfs_directory_list, vfs_file_read
 
 _LANGUAGES = {}
-_L10N_FOLDER = "gui/mods/mod_wot_tank_groups_lib"
+_L10N_FOLDER = "gui/mods/mod_wot_tank_sets_lib"
 
 l10_file_pattern = re.compile("^(\w+).json$")
 for f in vfs_directory_list(_L10N_FOLDER):

@@ -1,6 +1,6 @@
 <root>
     <!-- Идентификатор пакета -->
-    <id>com.github.ol_loginov.wot_tank_groups</id>
+    <id>com.github.ol_loginov.wot_tank_sets</id>
     <!-- Версия пакета -->
     <version>0.1.0</version>
     <!-- Имя пакета понятное для пользователя -->

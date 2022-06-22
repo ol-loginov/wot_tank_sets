@@ -1,15 +1,17 @@
 #!/usr/bin/env python2.7
 
 import os
+import sys
 import zipfile
-from distutils.dir_util import copy_tree, remove_tree
 from distutils import log
+from distutils.dir_util import copy_tree, remove_tree
 from py_compile import compile
 
 # mod props
 mod_author_id = 'com.github.ol_loginov'
-mod_pack_id = 'wot_tank_groups'
+mod_pack_id = 'wot_tank_sets'
 mod_id = mod_author_id + '.' + mod_pack_id
+mod_version = '0.1.0'
 
 # current folder
 project_folder = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +22,8 @@ target_folder = os.path.join(project_folder, 'target')
 
 # wotmod generation
 wotmod_root = os.path.join(target_folder, 'wotmod')
-wotmod_file = os.path.join(target_folder, '%s.wotmod' % (mod_id,))
+wotmod_file = os.path.join(target_folder, '%s_%s.wotmod' % (mod_id, mod_version))
+wotmod_res = os.path.join(wotmod_root, 'res')
 
 
 def panic(message):
@@ -36,7 +39,7 @@ def ensure_folder(path):
         panic('%s is not a folder' % path)
 
 
-def create_wotmod():
+def zip_wotmod():
     def walk_dir(path, zip_handle):
         """
         :param path: path to add
@@ -71,19 +74,22 @@ def compile_sources():
 
 def build_wotmod():
     log.info('Remove target folder...')
-    remove_tree(target_folder)
+    if os.path.exists(target_folder):
+        remove_tree(target_folder)
 
     if os.path.exists(target_folder):
         panic('Cannot cleanup target folder "%s"' % target_folder)
 
     log.info('Create target folder...')
-    ensure_folder(wotmod_root)
+    ensure_folder(wotmod_res)
 
     log.info('Copy sources...')
-    copy_tree(project_scripts, os.path.join(wotmod_root, 'scripts'), verbose=False)
+    copy_tree(os.path.join(project_folder, 'scripts'), os.path.join(wotmod_res, 'scripts'), verbose=False)
+    copy_tree(os.path.join(project_folder, 'gui'), os.path.join(wotmod_res, 'gui'), verbose=False)
+    copy_tree(os.path.join(project_folder, 'wotmod'), wotmod_root, verbose=False)
 
     log.info('Make wotmod archive...')
-    create_wotmod()
+    zip_wotmod()
 
 
 def build():
@@ -95,5 +101,8 @@ def build():
 
 log.set_threshold(log.INFO)
 build()
+
+if len(sys.argv) > 1 and sys.argv[1] == 'mod':
+    build_wotmod()
 
 log.info('Done!')

@@ -3,7 +3,7 @@ import sys
 
 log = logging.getLogger(__name__)
 
-DEBUG = True
+DEBUG = False
 DEBUG_WOT_DECOMPILED_SOURCE_RES = 'C:/Projects/WorldOfTanks-Decompiled/source/res'
 DEBUG_MOD_SOURCE_ROOT = 'C:/Games/World_of_Tanks_RU/res_mods/1.17.0.1'
 
@@ -33,14 +33,14 @@ def startup():
     log.info('Welcome to WoT Tank Filter!')
 
     try:
-        from mod_wot_tank_groups_lib.settings import Settings
+        from mod_wot_tank_sets_lib.settings import Settings
         Settings.init()
     except:
         log.exception("cannot initialize settings")
         return
 
     try:
-        from mod_wot_tank_groups_lib.advices import advise
+        from mod_wot_tank_sets_lib.advices import advise
         advise()
     except:
         log.exception("cannot advise to code")
