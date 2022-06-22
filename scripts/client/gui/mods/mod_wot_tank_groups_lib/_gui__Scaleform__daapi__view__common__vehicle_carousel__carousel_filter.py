@@ -1,5 +1,6 @@
 from logging import getLogger
 
+# noinspection PyUnresolvedReferences
 from gui.shared.utils.requesters.ItemsRequester import REQ_CRITERIA
 
 from gui.Scaleform.daapi.view.common.vehicle_carousel.carousel_filter import BasicCriteriesGroup
@@ -13,7 +14,7 @@ log = getLogger(__name__)
 @overrideMethod(BasicCriteriesGroup, 'update')
 def BasicCriteriesGroup__update(base, self, filters, *args, **kwargs):
     ret = base(self, filters, *args, **kwargs)
-    log.info('filters: ' + repr(filters))
+    # log.info('filters: ' + repr(filters))
 
     tanks = set()
     has_applied_filter = False

@@ -1,53 +1,43 @@
 # coding=utf-8
 import collections
-import copy
 import json
 import os
 from logging import getLogger
 
-from .constants import MOD_ID, TANK_COLLECTIONS_NUMBERS, TANK_COLLECTIONS_DEFAULT_COUNT, \
-    TANK_COLLECTIONS_LIMIT
+from .constants import CONFIGURATION_FOLDER, DEFAULT_TANK_COLLECTIONS_COUNT, DEFAULT_TANK_COLLECTIONS_LIMIT
+from .l10n import l10n
+from .util import deep_dict_merge
 
 log = getLogger(__name__)
 
-CONFIGURATION_FOLDER = 'mods/config/%s' % MOD_ID
 COLLECTION_LIST_FILE = CONFIGURATION_FOLDER + "/collections.json"
 _ICON_PATH_PATTERN = '../maps/icons/mod_wot_tank_groups/%s.png'
 
 _COLLECTION_KEY = 'collection_%d'
-_default_settings = {}
 _current_settings = {}
 
 
-def _generate_defaults():
-    for n in TANK_COLLECTIONS_NUMBERS:
-        _default_settings[_COLLECTION_KEY % n] = {
-            'enabled': n <= TANK_COLLECTIONS_DEFAULT_COUNT,
+# noinspection PyClassHasNoInit
+class _KEYS:
+    LIMIT = 'limit'
+
+
+def _restore_defaults(s):
+    if _KEYS.LIMIT not in s or not isinstance(s[_KEYS.LIMIT], int):
+        s[_KEYS.LIMIT] = DEFAULT_TANK_COLLECTIONS_LIMIT
+
+    for n in range(1, s[_KEYS.LIMIT] + 1):
+        c_key = _COLLECTION_KEY % n
+        if c_key not in s:
+            s[c_key] = {}
+
+        c_default = {
+            'enabled': n <= DEFAULT_TANK_COLLECTIONS_COUNT,
             'tanks': []
         }
+        s[c_key] = deep_dict_merge(c_default, s[c_key])
 
-
-def deep_dict_merge(dct1, dct2, override=True):
-    """
-    :param dct1: First dict to merge
-    :param dct2: Second dict to merge
-    :param override: if same key exists in both dictionaries, should override? otherwise ignore. (default=True)
-    :return: The merge dictionary
-    """
-    merged = copy.deepcopy(dct1)
-    for k, v2 in dct2.items():
-        if k in merged:
-            v1 = merged[k]
-            if isinstance(v1, dict) and isinstance(v2, collections.Mapping):
-                merged[k] = deep_dict_merge(v1, v2, override)
-            elif isinstance(v1, list) and isinstance(v2, list):
-                merged[k] = v1 + v2
-            else:
-                if override:
-                    merged[k] = copy.deepcopy(v2)
-        else:
-            merged[k] = copy.deepcopy(v2)
-    return merged
+    return s
 
 
 class CollectionData:
@@ -57,8 +47,8 @@ class CollectionData:
         """
         data = data if isinstance(data, collections.Mapping) else {}
         self.enabled = data.get('enabled', True)
-        self.title = data.get('title', "Tank Collection %d" % (n,))
-        self.tooltip = data.get('tooltip', "Ready To Run %d" % (n,))
+        self.title = data.get('title', l10n("tc_%d_title" % n, l10n("tc_generic_title") + " " + str(n)))
+        self.tooltip = data.get('tooltip', l10n("tc_%d_tooltip" % n, ''))
         self.icon = data.get('icon', _ICON_PATH_PATTERN % str(n))
         self.tanks = data.get('tanks', [])
 
@@ -69,15 +59,13 @@ class Settings:
 
     @staticmethod
     def init():
-        _generate_defaults()
-
         saved_settings = {}
         if os.path.exists(COLLECTION_LIST_FILE):
             with open(COLLECTION_LIST_FILE, 'rb') as f_in:
                 saved_settings = json.load(f_in, encoding='utf-8')
 
         global _current_settings
-        _current_settings = deep_dict_merge(_default_settings, saved_settings)
+        _current_settings = _restore_defaults(saved_settings)
         log.info("current settings: %s" % repr(_current_settings))
 
     @staticmethod
@@ -90,7 +78,7 @@ class Settings:
 
     @staticmethod
     def get_tc_numbers_all():
-        return list(range(1, TANK_COLLECTIONS_LIMIT + 1))
+        return list(range(1, _current_settings[_KEYS.LIMIT] + 1))
 
     @staticmethod
     def get_tc_numbers_enabled():
@@ -106,7 +94,7 @@ class Settings:
         self = Settings
 
         out = []
-        for n in range(1, TANK_COLLECTIONS_LIMIT + 1):
+        for n in range(1, _current_settings['limit'] + 1):
             collection_info = self.collection(n)
             if collection_info.enabled:
                 out.append((n, collection_info))
