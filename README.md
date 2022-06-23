@@ -1,4 +1,13 @@
-# wot-tank-filter
+# Mod configuration
+
+## Change set icons
+
+You may put PNG file named "1.png" in "WoT Installation/mods/config/com.github.ol_loginov.wot_tank_sets", and this icon will be used
+for set 1. The same is valid for other sets (just use "2.png", "3.png", etc)
+
+# Assembly
+
+## wot-tank-filter
 
 Thanks for https://github.com/StranikS-Scan/WorldOfTanks-Decompiled
 
@@ -12,16 +21,16 @@ How-To Steps
 5) Create empty PyCharm project. Add "[WOT]/res_mods/[WOT Version]" as new content root to it, and "[WOT-Decompiled]" either
 
 
-# mod settings api
+## mod settings api
 
 https://wiki.wargaming.net/ru/ModsettingsAPI
 https://bitbucket.org/IzeBerg/modssettingsapi
 
-# mods list
+## mods list
 
 https://gitlab.com/wot-public-mods/mods-list
 
-# get tankopedia
+## get tankopedia
 
 items_cache = dependency.descriptor(IItemsCache)
 items_cache.items.getVehicleDossiersIterator()
