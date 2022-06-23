@@ -2,7 +2,7 @@
 
 ## Change set icons
 
-You may put PNG file named "1.png" in "WoT Installation/mods/config/com.github.ol_loginov.wot_tank_sets", and this icon will be used
+You may put PNG file named "1.png" in "[WoT Installation]/mods/config/com.github.ol_loginov.wot_tank_sets", and this icon will be used
 for set 1. The same is valid for other sets (just use "2.png", "3.png", etc)
 
 # Assembly
