@@ -27,6 +27,8 @@ wotmod_root = os.path.join(target_folder, 'wotmod')
 wotmod_file = os.path.join(target_folder, '%s_%s.wotmod' % (mod_id, mod_version))
 wotmod_res = os.path.join(wotmod_root, 'res')
 
+zip_file = os.path.join(target_folder, '%s_%s.zip' % (mod_id, mod_version))
+
 
 def panic(message):
     log.fatal(message)
@@ -98,6 +100,19 @@ def build_wotmod():
     zip_wotmod()
 
 
+def build_zip_with_libs():
+    log.info('Make final zip...')
+
+    lib_files = [
+        'izeberg.modsettingsapi_1.5.1.wotmod',
+        'poliroid.modslistapi_1.4.0.wotmod'
+    ]
+    with zipfile.ZipFile(zip_file, mode='w', compression=zipfile.ZIP_STORED) as zip_handle:
+        for lib_file in lib_files:
+            zip_handle.write(os.path.join(project_folder, 'lib/' + lib_file), lib_file)
+        zip_handle.write(wotmod_file, os.path.basename(wotmod_file))
+
+
 def build():
     log.info('Compile pythons...')
     compile_sources()
@@ -110,5 +125,6 @@ build()
 
 if len(sys.argv) > 1 and sys.argv[1] == 'mod':
     build_wotmod()
+    build_zip_with_libs()
 
 log.info('Done!')
