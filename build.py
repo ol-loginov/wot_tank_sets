@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.7
 
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
@@ -41,19 +42,23 @@ def ensure_folder(path):
 
 
 def zip_wotmod():
-    def walk_dir(path, zip_handle):
+    def zip_dir(path, zip_handle, ignore_paths=None):
         """
         :param path: path to add
         :param zip_handle: zip file handle
+        :param ignore_paths:
         """
         for root, dirs, files in os.walk(path):
             for f in files:
                 src = os.path.join(root, f)
+                if ignore_paths is not None and re.search(ignore_paths, src) is not None:
+                    continue
+
                 dst = os.path.relpath(os.path.join(root, f), path)
                 zip_handle.write(src, dst)
 
     with zipfile.ZipFile(wotmod_file, mode='w', compression=zipfile.ZIP_STORED) as out_file:
-        walk_dir(wotmod_root, out_file)
+        zip_dir(wotmod_root, out_file, '(\\\\|/)pydev(\\\\|/)|\.py$')
 
     log.info('Done! Result is in "%s"' % wotmod_file)
 
