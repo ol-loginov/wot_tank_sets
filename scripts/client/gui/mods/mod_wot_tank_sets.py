@@ -32,17 +32,10 @@ def startup():
     log.info('Welcome to WoT Tank Filter!')
 
     try:
-        from mod_wot_tank_sets_lib.settings import Settings
-        Settings.init()
+        from mod_wot_tank_sets_lib import init
+        init()
     except:
-        log.exception("cannot initialize settings")
-        return
-
-    try:
-        from mod_wot_tank_sets_lib.advices import advise
-        advise()
-    except:
-        log.exception("cannot advise to code")
+        log.exception("cannot start")
         return
 
 

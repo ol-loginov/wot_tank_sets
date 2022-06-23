@@ -1,16 +1,11 @@
 {
-  "tc_generic_title": "Set ",
-  "tc_1_title": "Set 1",
-  "tc_2_title": "Set 2",
-  "tc_3_title": "Set 3",
-  "tc_4_title": "Set 4",
-  "tc_5_title": "Set 5",
-  "tc_6_title": "Set 6",
-  "tc_7_title": "Set 7",
-  "tc_8_title": "Set 8",
-  "tc_9_title": "Set 9",
-  "tc_10_title": "Set 10",
+  "tc_generic_title": "Set %d",
   "menu.ADD_TO_TC": "Add to set",
   "menu.REMOVE_FROM_TC": "Remove from set",
-  "menu.REMOVE_FROM_ALL": "Remove from all sets"
+  "menu.REMOVE_FROM_ALL": "Remove from all sets",
+  "setup.title": "Editable tank sets for carousel",
+  "setup.set_label": "Set %d",
+  "setup.set_enabled": "Enable set %d",
+  "setup.set_title": "Title",
+  "setup.set_tooltip": "Description"
 }

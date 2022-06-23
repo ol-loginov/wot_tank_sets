@@ -16,15 +16,16 @@ def BasicCriteriesGroup__update(base, self, filters, *args, **kwargs):
     ret = base(self, filters, *args, **kwargs)
     # log.info('filters: ' + repr(filters))
 
-    tanks = set()
-    has_applied_filter = False
-    for n in S.get_tc_numbers_enabled():
-        if tank_collection_mapping(n) in filters and filters[tank_collection_mapping(n)]:
-            tanks |= set(S.collection(n).tanks)
-            has_applied_filter = True
+    if S.is_mod_enabled():
+        tanks = set()
+        has_applied_filter = False
+        for n in S.get_tc_numbers_enabled():
+            if tank_collection_mapping(n) in filters and filters[tank_collection_mapping(n)]:
+                tanks |= set(S.collection(n).tanks)
+                has_applied_filter = True
 
-    if has_applied_filter:
-        self._criteria |= REQ_CRITERIA.CUSTOM(lambda item: _apply_tank_group_filters(item, tanks))
+        if has_applied_filter:
+            self._criteria |= REQ_CRITERIA.CUSTOM(lambda item: _apply_tank_group_filters(item, tanks))
     return ret
 
 

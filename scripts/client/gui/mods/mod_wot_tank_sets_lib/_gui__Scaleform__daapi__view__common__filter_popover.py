@@ -17,7 +17,10 @@ log = logging.getLogger(__name__)
 @overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
 def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
     mapping = base(*args, **kwargs)
-    mapping[_SECTION.SPECIALS].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
+
+    if S.is_mod_enabled():
+        mapping[_SECTION.SPECIALS].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
+
     return mapping
 
 
@@ -27,15 +30,17 @@ def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
 
     special_vo = ret['specials']
     special_mapping = self._VehiclesFilterPopover__mapping[_SECTION.SPECIALS]
-    for n, collection in S.get_enabled_collections():
-        filter_index = special_mapping.index(tank_collection_mapping(n))
-        filter_vo = special_vo[filter_index]
 
-        tooltip = "{HEADER}%s{/HEADER}" % collection.title
-        if collection.tooltip is not None and len(collection.tooltip) > 0:
-            tooltip += "{BODY}%s{/BODY}" % collection.tooltip
+    if S.is_mod_enabled():
+        for n, collection in S.get_enabled_collections():
+            filter_index = special_mapping.index(tank_collection_mapping(n))
+            filter_vo = special_vo[filter_index]
 
-        filter_vo.update({'value': collection.icon, 'tooltip': tooltip})
+            tooltip = "{HEADER}%s{/HEADER}" % collection.title
+            if collection.tooltip is not None and len(collection.tooltip) > 0:
+                tooltip += "{BODY}%s{/BODY}" % collection.tooltip
+
+            filter_vo.update({'value': collection.icon, 'tooltip': tooltip})
 
     return ret
 

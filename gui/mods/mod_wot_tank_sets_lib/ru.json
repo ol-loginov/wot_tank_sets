@@ -1,16 +1,11 @@
 {
-  "tc_generic_title": "Набор ",
-  "tc_1_title": "Набор 1",
-  "tc_2_title": "Набор 2",
-  "tc_3_title": "Набор 3",
-  "tc_4_title": "Набор 4",
-  "tc_5_title": "Набор 5",
-  "tc_6_title": "Набор 6",
-  "tc_7_title": "Набор 7",
-  "tc_8_title": "Набор 8",
-  "tc_9_title": "Набор 9",
-  "tc_10_title": "Набор 10",
+  "tc_generic_title": "Набор %d",
   "menu.ADD_TO_TC": "Добавить в набор",
   "menu.REMOVE_FROM_TC": "Убрать из набора",
-  "menu.REMOVE_FROM_ALL": "Убрать из всех наборов"
+  "menu.REMOVE_FROM_ALL": "Убрать из всех наборов",
+  "setup.title": "Редактируемые наборы танков в карусели",
+  "setup.set_label": "Набор %d",
+  "setup.set_enabled": "Использовать набор %d",
+  "setup.set_title": "Название",
+  "setup.set_tooltip": "Описание"
 }

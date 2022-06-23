@@ -6,6 +6,10 @@ import ResMgr
 import json
 
 
+def del_key(ob, key):
+    if key in ob: del ob[key]
+
+
 def load_json_file(path):
     with open(path, 'rb') as f_in:
         return json.load(f_in, encoding='utf-8')

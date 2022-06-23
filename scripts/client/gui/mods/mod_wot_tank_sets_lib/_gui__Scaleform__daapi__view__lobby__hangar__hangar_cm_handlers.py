@@ -73,7 +73,7 @@ def VehicleContextMenuHandler__generateOptions(base, self, *args, **kwargs):
     options = base(self, *args, **kwargs)
 
     veh_inv_id = self.getVehInvID()
-    if veh_inv_id is not None:
+    if S.is_mod_enabled() and veh_inv_id is not None:
         submenu_add = []
         submenu_remove = []
         for n, collection in S.get_enabled_collections():
