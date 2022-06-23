@@ -1,10 +1,6 @@
 <root>
-    <!-- Идентификатор пакета -->
     <id>com.github.ol_loginov.wot_tank_sets</id>
-    <!-- Версия пакета -->
-    <version>0.1.0</version>
-    <!-- Имя пакета понятное для пользователя -->
+    <version>1.17.0</version>
     <name>Editable tank sets for carousel</name>
-    <!-- Описание пакета -->
-    <description>Add collections to tank carousel</description>
+    <description>Adds user' tank sets to carousel</description>
 </root>

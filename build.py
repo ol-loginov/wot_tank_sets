@@ -2,16 +2,17 @@
 
 import os
 import sys
+import xml.etree.ElementTree as ET
 import zipfile
 from distutils import log
 from distutils.dir_util import copy_tree, remove_tree
 from py_compile import compile
 
+meta_xml = ET.parse(os.path.dirname(os.path.abspath(__file__)) + '/wotmod/meta.xml')
+
 # mod props
-mod_author_id = 'com.github.ol_loginov'
-mod_pack_id = 'wot_tank_sets'
-mod_id = mod_author_id + '.' + mod_pack_id
-mod_version = '0.1.0'
+mod_id = meta_xml.findtext('./id')
+mod_version = meta_xml.findtext('./version')
 
 # current folder
 project_folder = os.path.dirname(os.path.abspath(__file__))
