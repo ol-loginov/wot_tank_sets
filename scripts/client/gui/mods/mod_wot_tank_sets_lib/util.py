@@ -3,6 +3,13 @@ import copy
 
 import ResMgr
 
+import json
+
+
+def load_json_file(path):
+    with open(path, 'rb') as f_in:
+        return json.load(f_in, encoding='utf-8')
+
 
 def vfs_directory_list(vfs_path):
     """Lists files in directory from VFS

@@ -5,8 +5,8 @@ import os
 from logging import getLogger
 
 from .constants import CONFIGURATION_FOLDER, DEFAULT_TANK_COLLECTIONS_COUNT, DEFAULT_TANK_COLLECTIONS_LIMIT
-from .l10n import l10n
-from .util import deep_dict_merge
+from .l10n import l10n, l10n_set_language
+from .util import deep_dict_merge, load_json_file
 
 log = getLogger(__name__)
 
@@ -40,6 +40,12 @@ def _restore_defaults(s):
     return s
 
 
+def _get_file_or_resource(file, resource):
+    if os.path.exists(file):
+        return '../../../' + file
+    return resource
+
+
 class CollectionData:
     def __init__(self, n, data):
         """
@@ -49,7 +55,7 @@ class CollectionData:
         self.enabled = data.get('enabled', True)
         self.title = data.get('title', l10n("tc_%d_title" % n, l10n("tc_generic_title") + " " + str(n)))
         self.tooltip = data.get('tooltip', l10n("tc_%d_tooltip" % n, ''))
-        self.icon = data.get('icon', _ICON_PATH_PATTERN % str(n))
+        self.icon = _get_file_or_resource(CONFIGURATION_FOLDER + "/%d.png" % n, _ICON_PATH_PATTERN % str(n))
         self.tanks = data.get('tanks', [])
 
 
@@ -61,12 +67,14 @@ class Settings:
     def init():
         saved_settings = {}
         if os.path.exists(COLLECTION_LIST_FILE):
-            with open(COLLECTION_LIST_FILE, 'rb') as f_in:
-                saved_settings = json.load(f_in, encoding='utf-8')
+            saved_settings = load_json_file(COLLECTION_LIST_FILE)
 
         global _current_settings
         _current_settings = _restore_defaults(saved_settings)
         log.info("current settings: %s" % repr(_current_settings))
+
+        if 'lang' in _current_settings:
+            l10n_set_language(_current_settings['lang'])
 
     @staticmethod
     def save():

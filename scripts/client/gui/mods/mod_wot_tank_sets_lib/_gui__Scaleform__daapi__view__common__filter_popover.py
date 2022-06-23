@@ -31,10 +31,11 @@ def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
         filter_index = special_mapping.index(tank_collection_mapping(n))
         filter_vo = special_vo[filter_index]
 
-        filter_vo.update({
-            'value': collection.icon,
-            'tooltip': "{HEADER}%s{/HEADER}{BODY}%s{/BODY}" % (collection.title, collection.tooltip),
-        })
+        tooltip = "{HEADER}%s{/HEADER}" % collection.title
+        if collection.tooltip is not None and len(collection.tooltip) > 0:
+            tooltip += "{BODY}%s{/BODY}" % collection.tooltip
+
+        filter_vo.update({'value': collection.icon, 'tooltip': tooltip})
 
     return ret
 

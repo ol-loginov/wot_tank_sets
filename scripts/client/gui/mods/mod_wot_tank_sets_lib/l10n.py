@@ -1,9 +1,12 @@
 import json
 import re
+from logging import getLogger
 
 from helpers import getClientLanguage
 from .constants import MOD_LANGUAGE
 from .util import vfs_directory_list, vfs_file_read
+
+log = getLogger(__name__)
 
 _LANGUAGES = {}
 _L10N_FOLDER = "gui/mods/mod_wot_tank_sets_lib"
@@ -14,13 +17,23 @@ for f in vfs_directory_list(_L10N_FOLDER):
     if m is not None:
         _LANGUAGES[m.group(1)] = json.loads(vfs_file_read(_L10N_FOLDER + "/" + f, as_binary=True), encoding='utf-8')
 
-_CLIENT_LANGUAGE = getClientLanguage()
-if _CLIENT_LANGUAGE in _LANGUAGES.keys():
-    _LANGUAGE = _LANGUAGES[_CLIENT_LANGUAGE]
-elif MOD_LANGUAGE in _LANGUAGES.keys():
-    _LANGUAGE = _LANGUAGES[MOD_LANGUAGE]
-else:
-    _LANGUAGE = None
+_LANGUAGE = None
+
+
+def l10n_set_language(lang):
+    global _LANGUAGE
+    if lang in _LANGUAGES.keys():
+        log.info("use language=" + lang)
+        _LANGUAGE = _LANGUAGES[lang]
+    elif MOD_LANGUAGE in _LANGUAGES.keys():
+        log.info("use language=" + MOD_LANGUAGE)
+        _LANGUAGE = _LANGUAGES[MOD_LANGUAGE]
+    else:
+        log.info("use without language")
+        _LANGUAGE = None
+
+
+l10n_set_language(getClientLanguage())
 
 
 def l10n(key, default=None):

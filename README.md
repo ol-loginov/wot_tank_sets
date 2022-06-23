@@ -17,6 +17,10 @@ How-To Steps
 https://wiki.wargaming.net/ru/ModsettingsAPI
 https://bitbucket.org/IzeBerg/modssettingsapi
 
+# mods list
+
+https://gitlab.com/wot-public-mods/mods-list
+
 # get tankopedia
 
 items_cache = dependency.descriptor(IItemsCache)

@@ -3,21 +3,21 @@ import sys
 
 log = logging.getLogger(__name__)
 
-DEBUG = False
-DEBUG_WOT_DECOMPILED_SOURCE_RES = 'C:/Projects/WorldOfTanks-Decompiled/source/res'
-DEBUG_MOD_SOURCE_ROOT = 'C:/Games/World_of_Tanks_RU/res_mods/1.17.0.1'
-
 
 def start_debug():
-    import os
-
-    # add local source folder
-    sys.path.append(os.path.abspath(DEBUG_MOD_SOURCE_ROOT))
-    # add local source folder
-    sys.path.append(os.path.abspath(DEBUG_WOT_DECOMPILED_SOURCE_RES))
-
     try:
+        import os
         import bwpydevd
+
+        from mod_wot_tank_sets_lib.constants import CONFIGURATION_FOLDER
+        from mod_wot_tank_sets_lib.util import load_json_file
+
+        if not os.path.exists(CONFIGURATION_FOLDER + "/debug"):
+            return
+
+        for path in load_json_file(CONFIGURATION_FOLDER + "/debug"):
+            sys.path.append(os.path.abspath(path))
+
         bwpydevd.startDebug()
         # bwpydevd.startPyDevD('pycharm', suspend=True)
     except Exception as e:
@@ -27,8 +27,7 @@ def start_debug():
 
 # noinspection PyBroadException
 def startup():
-    if DEBUG:
-        start_debug()
+    start_debug()
 
     log.info('Welcome to WoT Tank Filter!')
 
