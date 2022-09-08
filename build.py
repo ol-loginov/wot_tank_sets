@@ -18,6 +18,7 @@ mod_version = meta_xml.findtext('./version')
 # current folder
 project_folder = os.path.dirname(os.path.abspath(__file__))
 project_scripts = os.path.join(project_folder, 'scripts')
+project_wotmod_libs = os.path.join(project_folder, 'lib')
 
 # sources & targets
 target_folder = os.path.join(project_folder, 'target')
@@ -103,10 +104,11 @@ def build_wotmod():
 def build_zip_with_libs():
     log.info('Make final zip...')
 
-    lib_files = [
-        'izeberg.modsettingsapi_1.5.1.wotmod',
-        'poliroid.modslistapi_1.4.0.wotmod'
-    ]
+    lib_files = []
+    for root, dirs, files in os.walk(project_wotmod_libs):
+        for f in files:
+            lib_files.append(f)
+
     with zipfile.ZipFile(zip_file, mode='w', compression=zipfile.ZIP_STORED) as zip_handle:
         for lib_file in lib_files:
             zip_handle.write(os.path.join(project_folder, 'lib/' + lib_file), lib_file)
