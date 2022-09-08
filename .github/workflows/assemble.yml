@@ -14,6 +14,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    outputs:
+      name: ${{ steps.properties.outputs.name }}
+      version: ${{ steps.properties.outputs.version }}
+      artifact: ${{ steps.properties.outputs.artifact }}
+
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 2.7
@@ -33,8 +38,7 @@ jobs:
         echo "::set-output name=version::$VERSION"
         echo "::set-output name=name::$NAME"
         echo "::set-output name=artifact::$ARTIFACT"
-        echo "$ARTIFACT"
-    
+
     - name: Assemble wotmod
       run: |
         # stop the build if there are Python syntax errors or undefined names
