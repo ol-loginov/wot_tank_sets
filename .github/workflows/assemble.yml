@@ -26,13 +26,14 @@ jobs:
       id: properties
       shell: bash
       run: |
-        META="wotmod/meta.xml"
-        VERSION="$(grep -oP "<version>.+</version>" wotmod/meta.xml | sed -E 's/<version>(.*)<\/version>/\1/')"
-        NAME="$(grep -oP "<id>.+</id>" wotmod/meta.xml | sed -E 's/<id>(.*)<\/id>/\1/')"
+        META="./wotmod/meta.xml"
+        VERSION="$(grep -oP "<version>.+</version>" "$META" | sed -E 's/<version>(.*)<\/version>/\1/')"
+        NAME="$(grep -oP "<id>.+</id>" "$META" | sed -E 's/<id>(.*)<\/id>/\1/')"
         ARTIFACT="${NAME}_${VERSION}.zip"
         echo "::set-output name=version::$VERSION"
         echo "::set-output name=name::$NAME"
         echo "::set-output name=artifact::$ARTIFACT"
+        echo "$ARTIFACT"
     
     - name: Assemble wotmod
       run: |
