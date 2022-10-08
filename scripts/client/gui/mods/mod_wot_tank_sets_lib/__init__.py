@@ -30,6 +30,7 @@ def _advise():
     from ._gui__Scaleform__daapi__view__common__vehicle_carousel__carousel_filter import LOADED
     from ._account_helpers__accountsettings import LOADED
     from ._gui__Scaleform__daapi__view__lobby__hangar__hangar_cm_handlers import LOADED
+    from ._gui__Scaleform__daapi__view__lobby__techtree__research_cm_handlers import LOADED
 
     log.info('override methods complete')
 
