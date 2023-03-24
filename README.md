@@ -7,8 +7,6 @@ for set 1. The same is valid for other sets (just use "2.png", "3.png", etc)
 
 # Assembly
 
-## wot-tank-filter
-
 Thanks for https://github.com/StranikS-Scan/WorldOfTanks-Decompiled
 
 How-To Steps
@@ -23,14 +21,12 @@ How-To Steps
 
 ## mod settings api
 
-https://wiki.wargaming.net/ru/ModsettingsAPI
-https://bitbucket.org/IzeBerg/modssettingsapi
+It's old a little bit. I have to use this fork: https://bitbucket.org/ol-loginov/modssettingsapi
+
+You may find original information here: 
+* https://wiki.wargaming.net/ru/ModsettingsAPI
+* https://bitbucket.org/IzeBerg/modssettingsapi
 
 ## mods list
 
 https://gitlab.com/wot-public-mods/mods-list
-
-## get tankopedia
-
-items_cache = dependency.descriptor(IItemsCache)
-items_cache.items.getVehicleDossiersIterator()
