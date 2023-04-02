@@ -5,6 +5,12 @@
 You may put PNG file named "1.png" in "[WoT Installation]/mods/config/com.github.ol_loginov.wot_tank_sets", and this icon will be used
 for set 1. The same is valid for other sets (just use "2.png", "3.png", etc)
 
+## XVM compatibility
+
+This mod cannot run with XVM carousel installed. But there is a way to disable XVM carousel to get this mod working.
+Here are details: https://github.com/ol-loginov/wot_tank_sets/issues/2#issuecomment-1493420544
+
+
 # Assembly
 
 Thanks for https://github.com/StranikS-Scan/WorldOfTanks-Decompiled
