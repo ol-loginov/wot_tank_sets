@@ -4,6 +4,7 @@
   "menu.REMOVE_FROM_TC": "Usuń z zestawu",
   "menu.REMOVE_FROM_ALL": "Usuń ze wszystkich zestawów",
   "setup.title": "Edytowalne zestawy czołgów do karuzeli",
+  "setup.set_limit": "Liczba zestawów (wymagany restart)",
   "setup.set_label": "Zestaw %d",
   "setup.set_enabled": "Włącz zestaw %d",
   "setup.set_title": "Tytuł",

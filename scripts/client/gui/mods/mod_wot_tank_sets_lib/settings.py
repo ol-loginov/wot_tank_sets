@@ -78,6 +78,9 @@ class Settings:
     @staticmethod
     def set_collection_attributes(n, enabled, title):
         key = _COLLECTION_KEY % n
+        if key not in _current_settings:
+            _current_settings[key] = dict()
+
         collection = _current_settings[key]
         if enabled is not None: collection['enabled'] = bool(enabled)
         if title is not None: collection['title'] = str(title)
@@ -114,8 +117,6 @@ class Settings:
         for_save = deep_dict_merge({}, _current_settings)
         if _KEYS.MOD_ENABLED in for_save and for_save[_KEYS.MOD_ENABLED]:
             del for_save[_KEYS.MOD_ENABLED]
-        if _KEYS.LIMIT in for_save and for_save[_KEYS.LIMIT] == DEFAULT_TANK_COLLECTIONS_LIMIT:
-            del for_save[_KEYS.LIMIT]
 
         for n in S.get_tc_numbers_all():
             save = for_save[_COLLECTION_KEY % n]
@@ -128,6 +129,15 @@ class Settings:
             json.dump(for_save, f_out, encoding='utf-8', indent=True, sort_keys=True)
 
         S.reset_ui()
+
+    @staticmethod
+    def get_collection_limit():
+        return _current_settings[_KEYS.LIMIT] if _KEYS.LIMIT in _current_settings else DEFAULT_TANK_COLLECTIONS_LIMIT
+
+    @staticmethod
+    def set_collection_limit(n):
+        if isinstance(n, int) and n <= 100:
+            _current_settings[_KEYS.LIMIT] = n
 
     @staticmethod
     def get_tc_numbers_all():
