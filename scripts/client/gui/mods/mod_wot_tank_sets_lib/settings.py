@@ -172,7 +172,7 @@ class Settings:
     def add_tank_to_collection(collection_number, tank):
         key = _COLLECTION_KEY % collection_number
         tanks = _current_settings[key]['tanks']
-        if tank not in tanks:
+        if tank not in tanks and tank > 0:
             tanks.append(tank)
             S.save()
 
