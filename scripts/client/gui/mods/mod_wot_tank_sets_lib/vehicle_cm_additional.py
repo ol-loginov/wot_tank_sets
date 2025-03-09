@@ -72,7 +72,7 @@ def generate_cm_instance_options(instance, veh_inv_id, options):
     :param options:
     :return:
     """
-    if S.is_mod_enabled() and veh_inv_id is not None:
+    if S.is_mod_enabled() and veh_inv_id is not None and veh_inv_id > 0:
         submenu_add = []
         submenu_remove = []
         for n, collection in S.get_enabled_collections():
