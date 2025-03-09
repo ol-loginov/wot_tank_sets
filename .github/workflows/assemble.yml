@@ -2,9 +2,9 @@ name: build wot_tank_sets wotmod
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "eu" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "eu" ]
 
 permissions:
   contents: write
