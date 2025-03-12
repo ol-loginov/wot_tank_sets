@@ -36,3 +36,11 @@ You may find original information here:
 ## mods list
 
 https://gitlab.com/wot-public-mods/mods-list
+
+## Icons
+
+To create icons the following commands is used:
+
+```shell
+convert -size 32x17 xc:none -fill white -font "SF-Pro-Bold" -pointsize 12 -gravity center -draw "text 1,0 '1'" 1.png
+```
