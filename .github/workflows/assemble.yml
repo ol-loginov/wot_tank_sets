@@ -42,9 +42,9 @@ jobs:
         VERSION="$(grep -oP "<version>.+</version>" "$META" | sed -E 's/<version>(.*)<\/version>/\1/')"
         NAME="$(grep -oP "<id>.+</id>" "$META" | sed -E 's/<id>(.*)<\/id>/\1/')"
         ARTIFACT="${NAME}_${VERSION}.zip"
-        echo "::set-output name=version::$VERSION"
-        echo "::set-output name=name::$NAME"
-        echo "::set-output name=artifact::$ARTIFACT"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "name=$NAME" >> $GITHUB_OUTPUT
+        echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
 
     - name: Assemble wotmod
       run: |
