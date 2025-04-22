@@ -67,9 +67,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # Check out current repository
-      - name: Fetch Sources
-        uses: actions/checkout@v2.3.4
+      # Download plugin artifact provided by the previous job
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wotmod-zip
 
       # Remove old release drafts by using the curl request for the available releases with draft flag
       - name: Remove Old Release Drafts
@@ -82,6 +84,10 @@ jobs:
             | xargs -I '{}' \
           curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/{}
 
+#      # Check out current repository
+#      - name: Fetch Sources
+#        uses: actions/checkout@v2.3.4
+
       # Create new release draft - which is not publicly visible and requires manual acceptance
       - name: Create Release Draft
         id: createDraft
@@ -93,21 +99,16 @@ jobs:
           draft: true
           artifacts: ${{ needs.build.outputs.artifact }}
 
-      # Download plugin artifact provided by the previous job
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: wotmod-zip
 
-      # Upload artifact as a release asset
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.createDraft.outputs.upload_url }}
-          asset_path: ./${{ needs.build.outputs.artifact }}
-          asset_name: ${{ needs.build.outputs.artifact }}
-          asset_content_type: application/zip
+#      # Upload artifact as a release asset
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1.0.2
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.createDraft.outputs.upload_url }}
+#          asset_path: ./${{ needs.build.outputs.artifact }}
+#          asset_name: ${{ needs.build.outputs.artifact }}
+#          asset_content_type: application/zip
 
