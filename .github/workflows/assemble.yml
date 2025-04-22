@@ -57,7 +57,7 @@ jobs:
       with:
         name: wotmod-zip
         path: ./target/${{ steps.properties.outputs.artifact }}
-        
+
   # Prepare a draft release for GitHub Releases page for the manual verification
   # If accepted and published, release workflow would be triggered
   releaseDraft:
@@ -83,6 +83,10 @@ jobs:
             | jq '.[] | select(.draft == true) | .id' \
             | xargs -I '{}' \
           curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/{}
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v2.3.4
 
       # Create new release draft - which is not publicly visible and requires manual acceptance
       - name: Create Release Draft
