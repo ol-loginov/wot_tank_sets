@@ -97,7 +97,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          commit: ${{ github.ref_name }}
+          commit: ${{ github.sha }}
           tag: v${{ needs.build.outputs.version }}
           draft: true
           artifacts: ${{ needs.build.outputs.artifact }}
