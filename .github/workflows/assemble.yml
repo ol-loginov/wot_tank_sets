@@ -67,12 +67,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      # Download plugin artifact provided by the previous job
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: wotmod-zip
-
       # Remove old release drafts by using the curl request for the available releases with draft flag
       - name: Remove Old Release Drafts
         env:
@@ -83,6 +77,18 @@ jobs:
             | jq '.[] | select(.draft == true) | .id' \
             | xargs -I '{}' \
           curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/{}
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v2.3.4
+        with:
+          show-progress: false
+
+      # Download plugin artifact provided by the previous job
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wotmod-zip
 
       # Create new release draft - which is not publicly visible and requires manual acceptance
       - name: Create Release Draft
