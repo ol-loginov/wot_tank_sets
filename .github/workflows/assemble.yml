@@ -81,6 +81,8 @@ jobs:
       # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v2.3.4
+        with:
+          show-progress: false
 
       # Download plugin artifact provided by the previous job
       - name: Download Artifact
