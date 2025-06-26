@@ -1,6 +1,6 @@
 <root>
     <id>com.github.ol_loginov.wot_tank_sets</id>
-    <version>CIS-1.34.0.0</version>
+    <version>CIS-1.35.0.0</version>
     <name>Editable tank sets for carousel</name>
     <description>Adds user' tank sets to carousel</description>
 </root>

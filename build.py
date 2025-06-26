@@ -25,7 +25,7 @@ target_folder = os.path.join(project_folder, 'target')
 
 # wotmod generation
 wotmod_root = os.path.join(target_folder, 'wotmod')
-wotmod_file = os.path.join(target_folder, '%s_%s.wotmod' % (mod_id, mod_version))
+wotmod_file = os.path.join(target_folder, '%s_%s.mtmod' % (mod_id, mod_version))
 wotmod_res = os.path.join(wotmod_root, 'res')
 
 zip_file = os.path.join(target_folder, '%s_%s.zip' % (mod_id, mod_version))
