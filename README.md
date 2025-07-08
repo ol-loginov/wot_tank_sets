@@ -1,3 +1,7 @@
+# Public
+
+WGMODS: https://wgmods.net/7161/
+
 # Mod configuration
 
 ## Change set icons
