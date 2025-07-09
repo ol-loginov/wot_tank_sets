@@ -41,7 +41,7 @@ jobs:
         META="./files/meta.xml"
         VERSION="$(grep -oP "<version>.+</version>" "$META" | sed -E 's/<version>(.*)<\/version>/\1/')"
         NAME="$(grep -oP "<id>.+</id>" "$META" | sed -E 's/<id>(.*)<\/id>/\1/')"
-        ARTIFACT="${NAME}_${VERSION}.zip"
+        ARTIFACT="${NAME}-${VERSION}.zip"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "name=$NAME" >> $GITHUB_OUTPUT
         echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
