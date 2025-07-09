@@ -1,0 +1,12 @@
+{
+  "tc_generic_title": "Set %d",
+  "menu.ADD_TO_TC": "Add to set",
+  "menu.REMOVE_FROM_TC": "Remove from set",
+  "menu.REMOVE_FROM_ALL": "Remove from all sets",
+  "setup.title": "Editable tank sets for carousel",
+  "setup.set_limit": "Set count (restart required)",
+  "setup.set_label": "Set %d",
+  "setup.set_enabled": "Enable set %d",
+  "setup.set_title": "Title",
+  "setup.set_tooltip": "Description"
+}

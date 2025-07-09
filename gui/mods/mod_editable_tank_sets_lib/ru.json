@@ -1,0 +1,12 @@
+{
+  "tc_generic_title": "Набор %d",
+  "menu.ADD_TO_TC": "Добавить в набор",
+  "menu.REMOVE_FROM_TC": "Убрать из набора",
+  "menu.REMOVE_FROM_ALL": "Убрать из всех наборов",
+  "setup.title": "Редактируемые наборы танков в карусели",
+  "setup.set_limit": "Количество наборов (потребуется перезапуск)",
+  "setup.set_label": "Набор %d",
+  "setup.set_enabled": "Использовать набор %d",
+  "setup.set_title": "Название",
+  "setup.set_tooltip": "Описание"
+}

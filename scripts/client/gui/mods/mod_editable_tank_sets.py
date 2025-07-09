@@ -9,8 +9,8 @@ def start_debug():
         import os
         import bwpydevd
 
-        from mod_wot_tank_sets_lib.constants import CONFIGURATION_FOLDER
-        from mod_wot_tank_sets_lib.util import load_json_file
+        from mod_editable_tank_sets_lib.constants import CONFIGURATION_FOLDER
+        from mod_editable_tank_sets_lib.util import load_json_file
 
         if not os.path.exists(CONFIGURATION_FOLDER + "/debug"):
             return
@@ -32,7 +32,7 @@ def startup():
     log.info('Welcome to WoT Tank Filter!')
 
     try:
-        from mod_wot_tank_sets_lib import init
+        from mod_editable_tank_sets_lib import init
         init()
     except:
         log.exception("cannot start")

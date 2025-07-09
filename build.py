@@ -9,7 +9,7 @@ from distutils import log
 from distutils.dir_util import copy_tree, remove_tree
 from py_compile import compile
 
-meta_xml = ET.parse(os.path.dirname(os.path.abspath(__file__)) + '/wotmod/meta.xml')
+meta_xml = ET.parse(os.path.dirname(os.path.abspath(__file__)) + '/files/meta.xml')
 
 # mod props
 mod_id = meta_xml.findtext('./id')
@@ -25,10 +25,10 @@ target_folder = os.path.join(project_folder, 'target')
 
 # wotmod generation
 wotmod_root = os.path.join(target_folder, 'wotmod')
-wotmod_file = os.path.join(target_folder, '%s_%s.mtmod' % (mod_id, mod_version))
+wotmod_file = os.path.join(target_folder, '%s-%s.wotmod' % (mod_id, mod_version))
 wotmod_res = os.path.join(wotmod_root, 'res')
 
-zip_file = os.path.join(target_folder, '%s_%s.zip' % (mod_id, mod_version))
+zip_file = os.path.join(target_folder, '%s-%s.zip' % (mod_id, mod_version))
 
 
 def panic(message):
@@ -95,7 +95,7 @@ def build_wotmod():
     log.info('Copy sources...')
     copy_tree(os.path.join(project_folder, 'scripts'), os.path.join(wotmod_res, 'scripts'), verbose=False)
     copy_tree(os.path.join(project_folder, 'gui'), os.path.join(wotmod_res, 'gui'), verbose=False)
-    copy_tree(os.path.join(project_folder, 'wotmod'), wotmod_root, verbose=False)
+    copy_tree(os.path.join(project_folder, 'files'), wotmod_root, verbose=False)
 
     log.info('Make wotmod archive...')
     zip_wotmod()
