@@ -1,0 +1,12 @@
+ [
+    {
+        "type": "Layout",
+        "path": "coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.html",
+        "parameters": {
+            "extension": "",
+            "entrance": "EditableTankSets",
+            "impl": "gameface"
+        },
+        "itemID": "EditableTankSets"
+    }
+]

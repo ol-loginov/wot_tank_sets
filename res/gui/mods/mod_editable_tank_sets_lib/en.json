@@ -8,5 +8,6 @@
   "setup.set_label": "Set %d",
   "setup.set_enabled": "Enable set %d",
   "setup.set_title": "Title",
-  "setup.set_tooltip": "Description"
+  "setup.set_tooltip": "Description",
+  "filterPopover.groupTitle": "My sets"
 }

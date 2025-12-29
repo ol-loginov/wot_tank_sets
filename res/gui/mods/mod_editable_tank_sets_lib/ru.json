@@ -8,5 +8,6 @@
   "setup.set_label": "Набор %d",
   "setup.set_enabled": "Использовать набор %d",
   "setup.set_title": "Название",
-  "setup.set_tooltip": "Описание"
+  "setup.set_tooltip": "Описание",
+  "filterPopover.groupTitle": "Мои наборы"
 }
