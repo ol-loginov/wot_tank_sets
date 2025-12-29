@@ -1,4 +1,4 @@
-name: build wot_tank_sets wotmod
+name: build mod archive
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
         echo "name=$NAME" >> $GITHUB_OUTPUT
         echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
 
-    - name: Assemble mod
+    - name: Assemble archive
       run: |
         # stop the build if there are Python syntax errors or undefined names
         python build.py mod

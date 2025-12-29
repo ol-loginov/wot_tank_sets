@@ -9,6 +9,7 @@ def _move_old_configs():
 
     wrong_configuration_folders = [
         'mods/config/%s' % MOD_ID,
+        'mods/configs/%s' % MOD_ID
     ]
     for wrong_configuration_folder in wrong_configuration_folders:
         if os.path.exists(wrong_configuration_folder) and not os.path.exists(CONFIGURATION_FOLDER):
@@ -33,11 +34,13 @@ def _load_settings():
 def _advise():
     log.info('override methods...')
 
-    from ._gui__Scaleform__daapi__view__common__filter_popover import LOADED
-    from ._gui__Scaleform__daapi__view__common__vehicle_carousel__carousel_filter import LOADED
+    from ._gui__filters__carousel_filter import LOADED
     from ._account_helpers__accountsettings import LOADED
     from ._gui__Scaleform__daapi__view__lobby__hangar__hangar_cm_handlers import LOADED
     from ._gui__Scaleform__daapi__view__lobby__techtree__research_cm_handlers import LOADED
+    from ._gui__shared__tooltips__filter__VehicleFilterTooltip import LOADED
+    from ._gui__Scaleform__daapi__view__common__filter_popover import LOADED
+    from .gameface_inject import LOADED
 
     log.info('override methods complete')
 

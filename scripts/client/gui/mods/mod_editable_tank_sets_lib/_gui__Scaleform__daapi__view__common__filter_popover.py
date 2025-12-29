@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 
 @overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
 def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
+    log.info('VehiclesFilterPopover__generateMapping')
     mapping = base(*args, **kwargs)
 
     if S.is_mod_enabled():
@@ -28,6 +29,7 @@ def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
 
 @overrideMethod(VehiclesFilterPopover, '_getInitialVO')
 def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
+    log.info('_VehiclesFilterPopover_getInitialVO')
     ret = base(self, *args, **kwargs)
 
     special_vo = ret['specials']
@@ -49,6 +51,7 @@ def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
 
 @overrideMethod(VehiclesFilterPopover, '_getUpdateVO')
 def _VehiclesFilterPopover_getUpdateVO(base, self, *args, **kwargs):
+    log.info('_VehiclesFilterPopover_getUpdateVO')
     return base(self, *args, **kwargs)
 
 

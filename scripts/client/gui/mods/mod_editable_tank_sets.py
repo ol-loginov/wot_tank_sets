@@ -12,10 +12,10 @@ def start_debug():
         from mod_editable_tank_sets_lib.constants import CONFIGURATION_FOLDER
         from mod_editable_tank_sets_lib.util import load_json_file
 
-        if not os.path.exists(CONFIGURATION_FOLDER + "/debug"):
+        if not os.path.exists(CONFIGURATION_FOLDER + "/debug.json"):
             return
 
-        for path in load_json_file(CONFIGURATION_FOLDER + "/debug"):
+        for path in load_json_file(CONFIGURATION_FOLDER + "/debug.json"):
             sys.path.append(os.path.abspath(path))
 
         bwpydevd.startDebug()
