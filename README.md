@@ -44,3 +44,16 @@ To create icons the following commands is used:
 ```shell
 convert -size 32x17 xc:none -fill white -font "SF-Pro-Bold" -pointsize 12 -gravity center -draw "text 1,0 '1'" 1.png
 ```
+
+
+## 2.0
+
+Карусель теперь в react.
+python классы, отвечающие за критерии - хз где используются.
+Фильтровать можно прямо в gameface. Однако плохо выглядит при двойной карусели. Перетаскивать элементы наверное можно, но чревато...
+
+```html
+<div class="Information_details_e5340a0c"><div class="VehicleLevel_3c938122 Information_text_7b2995dc Information_text__level_e5a9014e" data-name="VehicleLevel">III</div><div class="VehicleType_30b4aab0 VehicleType_base__x24x24_a3dc7aa3" style="background-image: url(img://gui/maps/icons/ui_kit/vehicle_type/x24x24/light_tank_x24x24.png); background-repeat: no-repeat no-repeat; background-size: contain; background-position-x: 50.000000%; background-position-y: 50.000000%; " src="img://gui/maps/icons/ui_kit/vehicle_type/x24x24/light_tank_x24x24.png"></div></div>
+```
+
+Вот тут, в `.Information_details_e5340a0c` лежит `tag.__reactFiber$nfjywfmtamm.return.memoizedProps.vehicle`

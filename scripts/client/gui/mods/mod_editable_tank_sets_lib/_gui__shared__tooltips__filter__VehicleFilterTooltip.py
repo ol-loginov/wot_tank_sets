@@ -17,57 +17,57 @@ from gui.filters.carousel_filter import _CarouselFilter
 log = logging.getLogger(__name__)
 
 
-@overrideMethod(ViewComponent, '__init__')
-def ViewComponent___init__(base, self, *args, **kwargs):
-    log.info('ViewComponent___init__ %s' % (type(self),))
-    ret = base(self, *args, **kwargs)
+# @overrideMethod(ViewComponent, '__init__')
+# def ViewComponent___init__(base, self, *args, **kwargs):
+#     log.info('ViewComponent___init__ %s' % (type(self),))
+#     ret = base(self, *args, **kwargs)
     # log.info('ViewComponent___init__ dir %s' % (dir(self),))
-    return ret
+    # return ret
 
 
-@overrideMethod(BlocksTooltipData, 'getDisplayableData')
-def BlocksTooltipData_getDisplayableData(base, self, *args, **kwargs):
-    # log.info('BlocksTooltipData_getDisplayableData')
-    ret = base(self, *args, **kwargs)
-    log.info('BlocksTooltipData_getDisplayableData << %s' % (ret,))
-
-    return ret
-
-
-@overrideMethod(ToolTipBaseData, 'getDisplayableData')
-def ToolTipBaseData_getDisplayableData(base, self, *args, **kwargs):
-    ret = base(self, *args, **kwargs)
-    log.info('BlocksTooltipData_getDisplayableData << %s' % (ret,))
-
-    return ret
+# @overrideMethod(BlocksTooltipData, 'getDisplayableData')
+# def BlocksTooltipData_getDisplayableData(base, self, *args, **kwargs):
+#     log.info('BlocksTooltipData_getDisplayableData')
+#     ret = base(self, *args, **kwargs)
+#     log.info('BlocksTooltipData_getDisplayableData << %s' % (ret,))
+#
+#     return ret
 
 
-@overrideMethod(VehicleFiltersDataProvider, '_generateMappings')
-def VehicleFiltersDataProvider__generateMappings(base, self, *args, **kwargs):
-    log.info('VehicleFiltersDataProvider__generateMappings %s' % (self,))
-    base(self, *args, **kwargs)
-
-    if S.is_mod_enabled():
-        mapping = self._VehicleFiltersDataProvider__mapping
-        mapping[FilterSection.SPECIALS.value].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
-        log.info('>>> MAPPINGS:: %s' % (mapping,))
+# @overrideMethod(ToolTipBaseData, 'getDisplayableData')
+# def ToolTipBaseData_getDisplayableData(base, self, *args, **kwargs):
+#     ret = base(self, *args, **kwargs)
+#     log.info('BlocksTooltipData_getDisplayableData << %s' % (ret,))
+#
+#     return ret
 
 
-@overrideMethod(VehicleFiltersDataProvider, '_onLoading')
-def VehicleFiltersDataProvider__onLoading(base, self, *args, **kwargs):
-    log.info('VehicleFiltersDataProvider__onLoading%s' % (self,))
-    base(self, *args, **kwargs)
+# @overrideMethod(VehicleFiltersDataProvider, '_generateMappings')
+# def VehicleFiltersDataProvider__generateMappings(base, self, *args, **kwargs):
+#     log.info('VehicleFiltersDataProvider__generateMappings %s' % (self,))
+#     base(self, *args, **kwargs)
+#
+#     if S.is_mod_enabled():
+#         mapping = self._VehicleFiltersDataProvider__mapping
+#         mapping[FilterSection.SPECIALS.value].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
+#         log.info('>>> MAPPINGS:: %s' % (mapping,))
 
-    log.info('>>> FILTERS:: %s' % (self.viewModel.getFilters(),))
+
+# @overrideMethod(VehicleFiltersDataProvider, '_onLoading')
+# def VehicleFiltersDataProvider__onLoading(base, self, *args, **kwargs):
+#     log.info('VehicleFiltersDataProvider__onLoading %s' % (self,))
+#     base(self, *args, **kwargs)
+#
+#     log.info('>>> FILTERS:: %s' % (self.viewModel.getFilters(),))
 
 
-@overrideMethod(VehicleFiltersDataProvider, '_VehicleFiltersDataProvider__updateModel')
-def VehicleFiltersDataProvider___updateModel(base, self, *args, **kwargs):
-    log.info('VehicleFiltersDataProvider___updateModel%s' % (self,))
-    base(self, *args, **kwargs)
-
-    filters = self._VehicleFiltersDataProvider__filter.getFilters()
-    log.info('>>> _updateModel: %s' % (json.dumps(self._VehicleFiltersDataProvider__convertToModel(filters)),))
+# @overrideMethod(VehicleFiltersDataProvider, '_VehicleFiltersDataProvider__updateModel')
+# def VehicleFiltersDataProvider___updateModel(base, self, *args, **kwargs):
+#     log.info('VehicleFiltersDataProvider___updateModel %s' % (self,))
+#     base(self, *args, **kwargs)
+#
+#     filters = self._VehicleFiltersDataProvider__filter.getFilters()
+#     log.info('>>> _updateModel: %s' % (json.dumps(self._VehicleFiltersDataProvider__convertToModel(filters)),))
 
 
 # @overrideMethod(TankCarouselFilterPopover, '_getInitialVO')

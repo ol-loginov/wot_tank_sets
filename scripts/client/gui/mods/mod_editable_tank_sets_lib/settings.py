@@ -15,6 +15,7 @@ _ICON_PATH_PATTERN = '../maps/icons/mod_editable_tank_sets/%s.png'
 
 _COLLECTION_KEY = 'collection_%d'
 _current_settings = {}
+_current_active = set()
 
 
 # noinspection PyClassHasNoInit
@@ -57,6 +58,7 @@ class CollectionData:
         """
         data = data if isinstance(data, collections.Mapping) else {}
         self.enabled = data.get('enabled', True)
+        self.active = n in _current_active
         self.title = data.get('title', l10n("tc_generic_title") % n)
         self.tooltip = data.get('tooltip', '')
         self.icon = _get_file_or_resource(CONFIGURATION_FOLDER + "/%d.png" % n, _ICON_PATH_PATTERN % str(n))
@@ -188,6 +190,35 @@ class Settings:
     def remove_tank_from_all_collections(tank):
         for n in S.get_tc_numbers_all():
             S.remove_tank_from_collection(n, tank)
+
+    @staticmethod
+    def has_active_collections():
+        global _current_active
+        return S.is_mod_enabled() and len(_current_active) > 0
+
+    @staticmethod
+    def is_in_active_collection(invID):
+        if not S.is_mod_enabled():
+            return True
+
+        has_applied_filter = False
+        for (n, coll) in S.get_enabled_collections():
+            if not coll.active:
+                continue
+            has_applied_filter = True
+            if invID in coll.tanks:
+                return True
+
+        if not has_applied_filter:
+            return True
+        return False
+
+    @staticmethod
+    def set_active_collections(array):
+        global _current_active
+
+        log.info("set active collections: %s" % (array,))
+        _current_active = set(array)
 
 
 S = Settings
