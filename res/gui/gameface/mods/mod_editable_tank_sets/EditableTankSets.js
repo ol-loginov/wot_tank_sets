@@ -6,11 +6,9 @@ function info(arg) {
 }
 
 info('import libs');
-//noinspection JSFileReferences
 import {ModelObserver} from "../libs/model.js";
 import {pxToRem, remToPx} from "../libs/common.js";
 import {showTooltip, hideTooltip} from "../libs/views.js";
-//noinspection JSFileReferences
 
 if ('EditableTankSetsView' in window) {
     info(`panic! panic!`);
@@ -18,10 +16,9 @@ if ('EditableTankSetsView' in window) {
 }
 
 const view = {
-    /**
-     @type {HTMLDivElement}
-     */
+    /** @type {HTMLDivElement} */
     list: null,
+    /** @type {HTMLDivElement} */
     title: null,
     VehicleFilterModel: null,
 
@@ -55,9 +52,15 @@ function addHeightRem(el, add) {
     el.style.height = `${Math.max(20, height + add)}rem`;
 }
 
-function disposeUI(removed) {
-    if (!removed) return;
+function cleanupUI() {
+    if (view.title)         view.title.remove();
+    if (view.list)         view.list.remove();
 
+    view.title = view.titleDisplay = null;
+    view.list = view.listDisplay = null;
+}
+
+function disposeFilterUI() {
     if (view.title && !document.body.contains(view.title)) {
         view.title = null;
     }
@@ -66,13 +69,58 @@ function disposeUI(removed) {
     }
 }
 
-function restoreUI(added) {
-    const popoverBody = (added || document).querySelector('div.FilterPopover_body_9e82b944');
+class LiveElement {
+    constructor(selector) {
+        this.element = null;
+        this.selector = selector;
+    }
+
+    get() {
+        if (this.element != null && !document.body.contains(this.element)) {
+            this.element = null;
+        }
+        if (this.element == null) {
+            this.element = this.selector();
+        }
+        return this.element;
+    }
+}
+
+class Lazy {
+    constructor(factory) {
+        this.value = null;
+        this.factory = factory;
+    }
+
+    get(param) {
+        if (this.value == null)
+            this.value = this.factory(param);
+        return this.value;
+    }
+}
+
+const filterPopoverBodyRef = new LiveElement(() => document.querySelector('div.FilterPopover_body_9e82b944'));
+const filterSectionsRef = new LiveElement(() => {
+    const popoverBody = filterPopoverBodyRef.get();
+    if (!popoverBody) return null;
+    return popoverBody.querySelector('div.VerticalScroll_content_62cb6120')
+});
+
+function restoreFilterUI() {
+    if (!view.VehicleFilterModel) return;
+
+    const model = view.VehicleFilterModel.EditableTankSets;
+    if (!model.modEnabled) {
+        cleanupUI();
+        return;
+    }
+
+    const popoverBody = filterPopoverBodyRef.get();
     if (!popoverBody) {
         // info('no popover body found');
         return false;
     }
-    const filterSections = popoverBody.querySelector('div.VerticalScroll_content_62cb6120');
+    const filterSections = filterSectionsRef.get();
     if (!filterSections) {
         // info('no popover filter sections found');
         return false;
@@ -101,7 +149,7 @@ function restoreUI(added) {
     }
 
     if (created) {
-        updateUI();
+        updateFilterUI();
     }
 
     return true;
@@ -110,10 +158,16 @@ function restoreUI(added) {
 const ActiveButtonClass = 'Toggle_cdf77db0 Toggle_base__theme-primary_3e3de333 Toggle_base__activated_d584e080 FilterPopover_toggle_747f4b53 FilterPopover_toggle__activated_19a04a6d';
 const InactiveButtonClass = 'Toggle_cdf77db0 Toggle_base__theme-primary_3e3de333 FilterPopover_toggle_747f4b53';
 
-function updateUI() {
+const HiddenCardClass = 'EditableTankSet--hide';
+
+function updateFilterUI() {
     if (!view.VehicleFilterModel) return;
 
     const model = view.VehicleFilterModel.EditableTankSets;
+    if (!model.modEnabled) {
+        cleanupUI();
+        return;
+    }
 
     if (view.title && view.titleDisplay != model.groupTitle) {
         view.titleDisplay = model.groupTitle;
@@ -206,6 +260,92 @@ function dom(tagName, opts, ...children) {
     return element;
 }
 
+const carouselContentLive = new LiveElement(() => {
+    const pageCarousel = document.querySelector('.Page_carousel_2e3eb473');
+    if (!pageCarousel)return null;
+
+    return pageCarousel.querySelector('.CarouselSkeleton_content_b18f8dd7');
+});
+
+const carouselCards = new Map();
+
+function findCarousel() {
+    const carouselContent = carouselContentLive.get();
+    if (!carouselContent) return;
+
+    const fiberPropRef = new Lazy((node) => {
+        const prop = Object.keys(node).filter(n => n.startsWith('__reactFiber$'))[0];
+        return typeof prop === "string" ? prop : null;
+    });
+
+    for (const lastInvID of carouselCards.keys()) {
+        const lastCard = carouselCards.get(lastInvID);
+        if (!document.body.contains(lastCard)) {
+            carouselCards.delete(lastInvID);
+        }
+    }
+
+    const currentVehicles = new Set();
+
+    for (const vehicleCard of carouselContent.querySelectorAll('.vehicle-card')) {
+        const details = vehicleCard.querySelector('.Information_details_e5340a0c');
+        if (!details) continue;
+
+        const fiber = details[fiberPropRef.get(details)];
+        if (fiber && fiber.return && fiber.return.memoizedProps && fiber.return.memoizedProps.vehicle && fiber.return.memoizedProps.vehicle.inventoryId) {
+            const invID = fiber.return.memoizedProps.vehicle.inventoryId;
+            currentVehicles.add(invID);
+
+            const lastCard = carouselCards.get(invID);
+            if (lastCard && lastCard === vehicleCard) {
+                continue;
+            }
+            carouselCards.set(invID, vehicleCard);
+        }
+    }
+
+    for (const lastInvID of carouselCards.keys()) {
+        if (!currentVehicles.has(lastInvID)) {
+            carouselCards.delete(lastInvID);
+        }
+    }
+
+    console.info(`collect ${currentVehicles.size} cards. [${Array.from(currentVehicles).join(', ')}]`)
+}
+
+function updateCarousel() {
+    if (!view.VehicleFilterModel) return;
+
+    const model = view.VehicleFilterModel.EditableTankSets;
+    if (!model.modEnabled) {
+        cleanupUI();
+        return;
+    }
+
+    console.info(`current selected tanks: ${model.visibleSet}`)
+    let visibleSet = JSON.parse(model.visibleSet);
+    if (visibleSet != null) visibleSet = new Set(visibleSet);
+
+    for (const invID of carouselCards.keys()) {
+        const element = carouselCards.get(invID);
+        if (visibleSet == null || visibleSet.has(invID)) {
+            showCard(element);
+        } else {
+            hideCard(element);
+        }
+    }
+}
+
+function showCard(/** @type {HTMLDivElement} */ element) {
+    if (!element.classList.contains(HiddenCardClass)) return;
+    element.classList.remove(HiddenCardClass);
+}
+
+function hideCard(/** @type {HTMLDivElement} */ element) {
+    if (element.className.contains(HiddenCardClass))return;
+    element.classList.add(HiddenCardClass);
+}
+
 function main() {
     view.ModelObserver = ModelObserver;
 
@@ -220,26 +360,24 @@ function main() {
             // info(arguments);
             // window.VehicleFilterAddon.modelUpdate = new Date();
             view.VehicleFilterModel = m;
-            updateUI();
+            updateFilterUI();
+            findCarousel();
+            updateCarousel();
         });
         vehicleFilterModel.subscribe();
 
-        restoreUI(null);
+        restoreFilterUI();
+        findCarousel();
     });
 
-    const observer = new MutationObserver((records) => {
-        for (const record of records) {
-            for (const node of record.addedNodes) {
-                if (node.nodeType === 1 && restoreUI(node)) {
-                    break;
-                }
-            }
-            for (const node of record.removedNodes) {
-                if (node.nodeType === 1 && disposeUI(node)) {
-                    break;
-                }
-            }
-        }
+    const observer = new MutationObserver(() => {
+        const start = new Date().getTime();
+        disposeFilterUI();
+        restoreFilterUI();
+        findCarousel();
+        updateCarousel();
+        const finish = new Date().getTime();
+        console.info(`dom changes observed in ${(finish - start) / 1000.0} sec`);
     });
 
     observer.observe(document.body, {childList: true, subtree: true});

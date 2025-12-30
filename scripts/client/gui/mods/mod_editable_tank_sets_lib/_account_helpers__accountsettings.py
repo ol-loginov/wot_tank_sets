@@ -27,5 +27,5 @@ def _add_user_group_filters_to_defaults():
         changed_filters.append(key)
 
 
-_add_user_group_filters_to_defaults()
+# _add_user_group_filters_to_defaults()
 LOADED = True

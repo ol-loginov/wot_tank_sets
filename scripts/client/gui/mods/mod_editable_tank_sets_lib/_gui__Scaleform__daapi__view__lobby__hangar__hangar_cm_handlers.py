@@ -1,21 +1,12 @@
 from logging import getLogger
 
-from gui.Scaleform.daapi.view.lobby.hangar.carousels.basic.tank_carousel import TankCarousel
 from gui.Scaleform.daapi.view.lobby.hangar.hangar_cm_handlers import VehicleContextMenuHandler
-from .vehicle_cm_additional import setLastCarousel, define_cm_handler_methods, generate_cm_instance_options
+from .context_menus import define_cm_handler_methods, generate_cm_instance_options
 from .events import overrideMethod
-from .settings import Settings as S
 
 log = getLogger(__name__)
 
 _CMAdditionalHandlers = {}
-
-
-@overrideMethod(TankCarousel, '__init__')
-def TankCarousel___init__(base, self, *args, **kwargs):
-    ret = base(self, *args, **kwargs)
-    setLastCarousel(self)
-    return ret
 
 
 @overrideMethod(VehicleContextMenuHandler, '__init__')

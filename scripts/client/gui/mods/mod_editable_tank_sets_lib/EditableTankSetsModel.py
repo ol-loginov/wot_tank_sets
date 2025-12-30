@@ -24,7 +24,6 @@ VIEW_ID = 'EditableTankSets'
 class EditableTankSetsModel(ViewModel):
     def __init__(self, properties=4, commands=1):
         super(EditableTankSetsModel, self).__init__(properties=properties, commands=commands)
-        self.onSaveCallback = None
 
     def getCollections(self):
         return self._getString(0)
@@ -39,12 +38,25 @@ class EditableTankSetsModel(ViewModel):
         self._setBool(1, value)
 
     def setVisibleSet(self, value):
-        self._setString(1, value)
+        self._setString(3, value)
 
     def _initialize(self):
         super(EditableTankSetsModel, self)._initialize()
+        state = self.collect_state()
+        log.info('load initial state: %s' % (json.dumps(state)))
 
+        self._addStringProperty('collections', state['collections'])
+        self._addBoolProperty('modEnabled', state['modEnabled'])
+        self._addStringProperty('groupTitle', state['groupTitle'])
+        self._addStringProperty('visibleSet', state['visibleSet'])
+        self.onSave = self._addCommand('onSave')
+
+    def on_save_callback(self, param):
+        S.set_active_collections(json.loads(param.get('actives')))
+
+    def collect_state(self):
         collections = list()
+        tanks = set()
         for n, collection in S.get_enabled_collections():
             collections.append({
                 'n': n,
@@ -52,12 +64,23 @@ class EditableTankSetsModel(ViewModel):
                 'icon': collection.icon,
                 'active': collection.active
             })
+            if collection.active:
+                tanks |= set(collection.tanks)
 
-        self._addStringProperty('collections', json.dumps(collections))
-        self._addStringProperty('modEnabled', S.is_mod_enabled())
-        self._addStringProperty('groupTitle', l10n("filterPopover.groupTitle"))
-        self._addStringProperty('visibleSet', "null")
-        self.onSave = self._addCommand('onSave')
+        return {
+            'collections': json.dumps(collections),
+            'modEnabled': S.is_mod_enabled(),
+            'groupTitle': l10n("filterPopover.groupTitle"),
+            'visibleSet': json.dumps(list(tanks) if S.has_active_collections() else None)
+        }
+
+    def load_state(self):
+        state = self.collect_state()
+        log.info('load new state: %s' % (json.dumps(state)))
+        with self.transaction() as model:
+            model.setCollections(state['collections'])
+            model.setModEnabled(state['modEnabled'])
+            model.setVisibleSet(state['visibleSet'])
 
 
 # class EditableTankSetsPresenter(ViewComponent[EditableTankSetsModel]):
@@ -121,7 +144,9 @@ def VehicleFiltersDataProvider___init__(base, self, *args, **kwargs):
 
         setattr(self, 'editableTankSetsModel', EditableTankSetsModel())
         self.viewModel._addViewModelProperty('EditableTankSets', self.editableTankSetsModel)
-        gf_mod_inject(self.viewModel, 'VehicleFilterModelRef', modules=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.js'])
+        gf_mod_inject(self.viewModel, 'VehicleFilterModelRef',
+                      styles=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.css'],
+                      modules=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.js'])
 
         # filter = self._VehicleFiltersDataProvider__filter
         # filter._criteriesGroups += (TankSetCriteriaGroup(),)
@@ -136,16 +161,10 @@ def VehicleFiltersDataProvider_getEvents(base, self, *args, **kwargs):
     if type(self) is VehicleFiltersDataProvider:
         log.info("subscribe EditableTankSets viewModel events")
 
-        if self.editableTankSetsModel.onSaveCallback is None:
-            def callback(arg):
-                S.set_active_collections(json.loads(arg.get('actives')))
-                filter = self._VehicleFiltersDataProvider__filter
-                log.info('update criteries groups %s' % (filter._criteriesGroups,))
-                filter._updateCriteriesGroups()
-
-            self.editableTankSetsModel.onSaveCallback = callback
-
-        return ret + ((self.editableTankSetsModel.onSave, self.editableTankSetsModel.onSaveCallback),)
+        return ret + (
+            (self.editableTankSetsModel.onSave, self.editableTankSetsModel.on_save_callback),
+            (S.onChanged, self.editableTankSetsModel.load_state),
+        )
 
     return ret
 

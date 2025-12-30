@@ -6,7 +6,7 @@ from .l10n import l10n
 
 log = getLogger(__name__)
 
-_TankCarouselLast = None
+# _TankCarouselLast = None
 
 
 class SUBMENU:
@@ -30,27 +30,27 @@ def _addTank(self, n):
 
 def _removeTank(self, n):
     S.remove_tank_from_collection(n, self.getVehInvID())
-    _refreshCarousel()
+    # _refreshCarousel()
 
 
 def _removeTankFromAll(self):
     S.remove_tank_from_all_collections(self.getVehInvID())
-    _refreshCarousel()
+    # _refreshCarousel()
 
 
-def _refreshCarousel():
-    try:
-        if _TankCarouselLast is not None:
-            current_setup = _TankCarouselLast.filter.getFilters()
-            _TankCarouselLast.filter.update(current_setup, save=False)
-            _TankCarouselLast.applyFilter()
-    except:
-        log.exception('cannot update carousel')
+# def _refreshCarousel():
+#     try:
+#         if _TankCarouselLast is not None:
+#             current_setup = _TankCarouselLast.filter.getFilters()
+#             _TankCarouselLast.filter.update(current_setup, save=False)
+#             _TankCarouselLast.applyFilter()
+#     except:
+#         log.exception('cannot update carousel')
 
 
-def setLastCarousel(carousel):
-    global _TankCarouselLast
-    _TankCarouselLast = carousel
+# def setLastCarousel(carousel):
+#     global _TankCarouselLast
+#     _TankCarouselLast = carousel
 
 
 # add menu commands

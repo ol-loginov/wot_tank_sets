@@ -16,43 +16,43 @@ from .settings import Settings as S
 log = logging.getLogger(__name__)
 
 
-@overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
-def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
-    log.info('VehiclesFilterPopover__generateMapping')
-    mapping = base(*args, **kwargs)
-
-    if S.is_mod_enabled():
-        mapping[FILTER_POPOVER_SECTION.SPECIALS].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
-
-    return mapping
-
-
-@overrideMethod(VehiclesFilterPopover, '_getInitialVO')
-def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
-    log.info('_VehiclesFilterPopover_getInitialVO')
-    ret = base(self, *args, **kwargs)
-
-    special_vo = ret['specials']
-    special_mapping = self._mapping[FILTER_POPOVER_SECTION.SPECIALS]
-
-    if S.is_mod_enabled():
-        for n, collection in S.get_enabled_collections():
-            filter_index = special_mapping.index(tank_collection_mapping(n))
-            filter_vo = special_vo[filter_index]
-
-            tooltip = "{HEADER}%s{/HEADER}" % collection.title
-            if collection.tooltip is not None and len(collection.tooltip) > 0:
-                tooltip += "{BODY}%s{/BODY}" % collection.tooltip
-
-            filter_vo.update({'value': collection.icon, 'tooltip': tooltip})
-
-    return ret
-
-
-@overrideMethod(VehiclesFilterPopover, '_getUpdateVO')
-def _VehiclesFilterPopover_getUpdateVO(base, self, *args, **kwargs):
-    log.info('_VehiclesFilterPopover_getUpdateVO')
-    return base(self, *args, **kwargs)
+# @overrideClassMethod(VehiclesFilterPopover, '_generateMapping')
+# def VehiclesFilterPopover__generateMapping(base, _, *args, **kwargs):
+#     log.info('VehiclesFilterPopover__generateMapping')
+#     mapping = base(*args, **kwargs)
+#
+#     if S.is_mod_enabled():
+#         mapping[FILTER_POPOVER_SECTION.SPECIALS].extend([tank_collection_mapping(n) for n in S.get_tc_numbers_enabled()])
+#
+#     return mapping
+#
+#
+# @overrideMethod(VehiclesFilterPopover, '_getInitialVO')
+# def _VehiclesFilterPopover_getInitialVO(base, self, *args, **kwargs):
+#     log.info('_VehiclesFilterPopover_getInitialVO')
+#     ret = base(self, *args, **kwargs)
+#
+#     special_vo = ret['specials']
+#     special_mapping = self._mapping[FILTER_POPOVER_SECTION.SPECIALS]
+#
+#     if S.is_mod_enabled():
+#         for n, collection in S.get_enabled_collections():
+#             filter_index = special_mapping.index(tank_collection_mapping(n))
+#             filter_vo = special_vo[filter_index]
+#
+#             tooltip = "{HEADER}%s{/HEADER}" % collection.title
+#             if collection.tooltip is not None and len(collection.tooltip) > 0:
+#                 tooltip += "{BODY}%s{/BODY}" % collection.tooltip
+#
+#             filter_vo.update({'value': collection.icon, 'tooltip': tooltip})
+#
+#     return ret
+#
+#
+# @overrideMethod(VehiclesFilterPopover, '_getUpdateVO')
+# def _VehiclesFilterPopover_getUpdateVO(base, self, *args, **kwargs):
+#     log.info('_VehiclesFilterPopover_getUpdateVO')
+#     return base(self, *args, **kwargs)
 
 
 LOADED = True

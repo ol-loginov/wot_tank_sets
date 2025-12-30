@@ -41,7 +41,7 @@ def _advise():
     from ._gui__shared__tooltips__filter__VehicleFilterTooltip import LOADED
     from ._gui__Scaleform__daapi__view__common__filter_popover import LOADED
     from .EditableTankSetsModel import LOADED
-    from ._tests import LOADED
+    # from ._tests import LOADED
 
     log.info('override methods complete')
 

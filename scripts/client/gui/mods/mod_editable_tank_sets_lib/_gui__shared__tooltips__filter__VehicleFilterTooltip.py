@@ -8,7 +8,7 @@ from gui.impl.lobby.hangar.presenters.vehicle_filters_presenter import VehicleFi
 from gui.impl.pub.view_component import ViewComponent
 from gui.filters.carousel_filter import FILTER_KEYS
 from gui.shared.tooltips.filter import VehicleFilterTooltip
-from .events import overrideMethod, overrideClassMethod, overrideProperty
+from .events import overrideMethod, overrideClassMethod
 from .settings import Settings as S
 from .constants import tank_collection_mapping
 from gui.shared.tooltips.common import BlocksTooltipData

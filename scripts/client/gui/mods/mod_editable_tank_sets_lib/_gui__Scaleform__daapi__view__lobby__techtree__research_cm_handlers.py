@@ -1,6 +1,6 @@
 from gui.Scaleform.daapi.view.lobby.techtree.research_cm_handlers import ResearchVehicleContextMenuHandler
 from .events import overrideMethod
-from .vehicle_cm_additional import define_cm_handler_methods, generate_cm_instance_options
+from .context_menus import define_cm_handler_methods, generate_cm_instance_options
 
 _CMAdditionalHandlers = {}
 

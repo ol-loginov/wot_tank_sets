@@ -7,6 +7,7 @@ from logging import getLogger
 from .constants import CONFIGURATION_FOLDER, DEFAULT_TANK_COLLECTIONS_COUNT, DEFAULT_TANK_COLLECTIONS_LIMIT
 from .l10n import l10n, l10n_set_language
 from .util import deep_dict_merge, load_json_file, del_key
+from Event import Event
 
 log = getLogger(__name__)
 
@@ -66,6 +67,8 @@ class CollectionData:
 
 
 class Settings:
+    onChanged = Event()
+
     def __init__(self):
         pass
 
@@ -131,6 +134,7 @@ class Settings:
             json.dump(for_save, f_out, encoding='utf-8', indent=True, sort_keys=True)
 
         S.reset_ui()
+        S.onChanged()
 
     @staticmethod
     def get_collection_limit():
@@ -179,17 +183,19 @@ class Settings:
             S.save()
 
     @staticmethod
-    def remove_tank_from_collection(collection_number, tank):
+    def remove_tank_from_collection(collection_number, tank, save=True):
         key = _COLLECTION_KEY % collection_number
         tanks = _current_settings[key]['tanks']
         if tank in tanks:
             tanks.remove(tank)
-            S.save()
+            if save:
+                S.save()
 
     @staticmethod
     def remove_tank_from_all_collections(tank):
         for n in S.get_tc_numbers_all():
-            S.remove_tank_from_collection(n, tank)
+            S.remove_tank_from_collection(n, tank, False)
+        S.save()
 
     @staticmethod
     def has_active_collections():
@@ -219,6 +225,7 @@ class Settings:
 
         log.info("set active collections: %s" % (array,))
         _current_active = set(array)
+        S.onChanged()
 
 
 S = Settings

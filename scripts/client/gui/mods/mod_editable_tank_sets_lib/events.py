@@ -115,21 +115,3 @@ registerEvent = _hook_decorator(_RegisterEvent)
 overrideMethod = _hook_decorator(_OverrideMethod)
 overrideStaticMethod = _hook_decorator(_OverrideStaticMethod)
 overrideClassMethod = _hook_decorator(_OverrideClassMethod)
-
-
-def overrideProperty(cls, property_name, proxy_class):
-    orig = getattr(cls, property_name)
-    if orig is not property:
-        raise EnvironmentError('"%s" is not a property of %s' % (property_name, cls))
-
-    proxy = proxy_class()
-
-    def proxy_get(self):
-        return proxy.get(self, orig)
-
-    def proxy_set(self, v):
-        return proxy.get(self, orig, v)
-
-    setattr(cls, property_name, property(
-        fget=proxy_get if orig.fget is not None else None,
-        fset=proxy_set if orig.fset is not None else None))
