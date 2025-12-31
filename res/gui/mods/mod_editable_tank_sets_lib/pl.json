@@ -8,5 +8,6 @@
   "setup.set_label": "Zestaw %d",
   "setup.set_enabled": "Włącz zestaw %d",
   "setup.set_title": "Tytuł",
-  "setup.set_tooltip": "Opis"
+  "setup.set_tooltip": "Opis",
+  "filterPopover.groupTitle": "Moje Bobry"
 }

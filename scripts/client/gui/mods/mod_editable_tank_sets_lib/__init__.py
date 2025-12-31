@@ -34,12 +34,9 @@ def _load_settings():
 def _advise():
     log.info('override methods...')
 
-    from ._gui__filters__carousel_filter import LOADED
-    from ._account_helpers__accountsettings import LOADED
+    from ._gui__impl__lobby__common__presenters__vehicles_info_presenter__RandomHangar import LOADED
     from ._gui__Scaleform__daapi__view__lobby__hangar__hangar_cm_handlers import LOADED
     from ._gui__Scaleform__daapi__view__lobby__techtree__research_cm_handlers import LOADED
-    from ._gui__shared__tooltips__filter__VehicleFilterTooltip import LOADED
-    from ._gui__Scaleform__daapi__view__common__filter_popover import LOADED
     from .EditableTankSetsModel import LOADED
     # from ._tests import LOADED
 

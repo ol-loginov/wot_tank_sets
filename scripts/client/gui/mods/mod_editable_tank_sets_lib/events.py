@@ -78,9 +78,9 @@ def _override(cls, method, newm):
 
 
 def _OverrideMethod(handler, cls, method):
-    log.info('_override %s(%s)::%s' % (type(cls), cls, method))
+    # log.info('_override %s(%s)::%s' % (type(cls), cls, method))
     orig = getattr(cls, method)
-    log.info('_override << %s' % (orig,))
+    # log.info('_override << %s' % (orig,))
     newm = lambda *a, **k: handler(orig, *a, **k)
     newm.__name__ = method
     _override(cls, method, newm)

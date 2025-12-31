@@ -103,6 +103,16 @@ class Settings:
         if _KEYS.LANG in _current_settings:
             l10n_set_language(_current_settings[_KEYS.LANG])
 
+        # удалим -1 (no vehicle id), попавший туда случайно, видимо
+        fixed = False
+        for (n, coll) in S.get_enabled_collections():
+            if len(coll.tanks) > 0 and -1 in coll.tanks:
+                coll.tanks.remove(-1)
+                fixed = True
+
+        if fixed:
+            Settings.save(False)
+
         S.reset_ui()
 
     @staticmethod
@@ -114,7 +124,7 @@ class Settings:
             log.exception("cannot connect to settings UI")
 
     @staticmethod
-    def save():
+    def save(fire=True):
         if not os.path.exists(CONFIGURATION_FOLDER):
             os.makedirs(CONFIGURATION_FOLDER)
 
@@ -133,8 +143,10 @@ class Settings:
         with open(COLLECTION_LIST_FILE, 'wb') as f_out:
             json.dump(for_save, f_out, encoding='utf-8', indent=True, sort_keys=True)
 
-        S.reset_ui()
-        S.onChanged()
+        if fire:
+            # log.info("save %s" % (S.onChanged,))
+            S.reset_ui()
+            S.onChanged()
 
     @staticmethod
     def get_collection_limit():
@@ -223,8 +235,12 @@ class Settings:
     def set_active_collections(array):
         global _current_active
 
-        log.info("set active collections: %s" % (array,))
-        _current_active = set(array)
+        active_set = set(array)
+        if active_set == _current_active:
+            return
+
+        log.info("set active collections: %s" % (active_set,))
+        _current_active = active_set
         S.onChanged()
 
 

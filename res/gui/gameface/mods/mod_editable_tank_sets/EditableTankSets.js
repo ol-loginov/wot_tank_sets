@@ -20,7 +20,9 @@ const view = {
     list: null,
     /** @type {HTMLDivElement} */
     title: null,
-    VehicleFilterModel: null,
+
+    model: null,
+    modelCheckpoint: null,
 
     listDisplay: null,
     titleDisplay: null
@@ -107,9 +109,9 @@ const filterSectionsRef = new LiveElement(() => {
 });
 
 function restoreFilterUI() {
-    if (!view.VehicleFilterModel) return;
+    if (!view.model) return;
 
-    const model = view.VehicleFilterModel.EditableTankSets;
+    const model = view.model;
     if (!model.modEnabled) {
         cleanupUI();
         return;
@@ -161,9 +163,9 @@ const InactiveButtonClass = 'Toggle_cdf77db0 Toggle_base__theme-primary_3e3de333
 const HiddenCardClass = 'EditableTankSet--hide';
 
 function updateFilterUI() {
-    if (!view.VehicleFilterModel) return;
+    if (!view.model) return;
 
-    const model = view.VehicleFilterModel.EditableTankSets;
+    const model = view.model;
     if (!model.modEnabled) {
         cleanupUI();
         return;
@@ -199,6 +201,21 @@ function updateFilterUI() {
         const collections = JSON.parse(model.collections);
         collections.forEach(collection => {
             const n = collection.n;
+            const title = collection.title || "";
+
+            const words = title.trim()
+                .split(/[\s-]+/)
+                .filter(e=>e.length > 0)
+                .map(e=>e.charAt(0).toUpperCase());
+            let abbr;
+            if (words.length > 1) {
+                abbr = words[0] + words[words.length - 1];
+            } else if (words.length > 0) {
+                abbr = words[0];
+            } else {
+                abbr = `${n}`;
+            }
+
             const button =
                 dom('div', {dataCollection: n, className: collection.active ? ActiveButtonClass : InactiveButtonClass},
                     dom('div', {className: 'Toggle_border_3d0d0d39'}),
@@ -206,7 +223,7 @@ function updateFilterUI() {
                     dom('div', {className: 'Toggle_bulb_fe6d0fba'}),
                     dom('div', {className: 'Toggle_overlay_e2999686'}),
                     dom('div', {className: 'Toggle_content_17eff4d2'},
-                        dom('div', {className: 'VehicleLevel_3c938122 FilterPopover_vehicleLevel_41885117', text: `${n}`})
+                        dom('div', {className: 'VehicleLevel_3c938122 FilterPopover_vehicleLevel_41885117', text: abbr})
                     ),
                 );
             button.onclick = function () {
@@ -226,10 +243,10 @@ function updateFilterUI() {
 function toggleCollection(n) {
     console.info(`toggle collection ${n}`);
 
-    const model = view.VehicleFilterModel;
+    const model = view.model;
     if (!model) return;
 
-    const collections = JSON.parse(model.EditableTankSets.collections);
+    const collections = JSON.parse(model.collections);
     for (const c of collections) {
         if (c.n === n) {
             c.active = !c.active;
@@ -241,8 +258,8 @@ function toggleCollection(n) {
         .filter(e => e.active)
         .map(e => e.n);
 
-    model.EditableTankSets.collections = JSON.stringify(collections);
-    model.EditableTankSets.onSave({"actives": JSON.stringify(actives)});
+    model.collections = JSON.stringify(collections);
+    model.onSave({"actives": JSON.stringify(actives)});
 }
 
 function dom(tagName, opts, ...children) {
@@ -314,9 +331,9 @@ function findCarousel() {
 }
 
 function updateCarousel() {
-    if (!view.VehicleFilterModel) return;
+    if (!view.model) return;
 
-    const model = view.VehicleFilterModel.EditableTankSets;
+    const model = view.model;
     if (!model.modEnabled) {
         cleanupUI();
         return;
@@ -342,7 +359,7 @@ function showCard(/** @type {HTMLDivElement} */ element) {
 }
 
 function hideCard(/** @type {HTMLDivElement} */ element) {
-    if (element.className.contains(HiddenCardClass))return;
+    if (element.classList.contains(HiddenCardClass)) return;
     element.classList.add(HiddenCardClass);
 }
 
@@ -350,32 +367,34 @@ function main() {
     view.ModelObserver = ModelObserver;
 
     // Create model observer
-    const vehicleFilterModel = ModelObserver("VehicleFilterModelRef");
+    const modelObserver = ModelObserver("VehicleFilterModel");
 
     // Initialize UI logic once the engine is fully ready
     info('engine.whenReady');
     engine.whenReady.then(() => {
         // Keep button in sync with model changes (alerts count etc.)
-        vehicleFilterModel.onUpdate(m => {
-            // info(arguments);
-            // window.VehicleFilterAddon.modelUpdate = new Date();
-            view.VehicleFilterModel = m;
-            updateFilterUI();
-            findCarousel();
-            updateCarousel();
+        modelObserver.onUpdate(m => {
+            const model = m.EditableTankSets;
+            if (view.model == null || model.checkpoint != view.modelCheckpoint) {
+                view.model = model;
+                view.modelCheckpoint = model.checkpoint;
+                updateFilterUI();
+                // findCarousel();
+                // updateCarousel();
+            }
         });
-        vehicleFilterModel.subscribe();
+        modelObserver.subscribe();
 
         restoreFilterUI();
-        findCarousel();
+        // findCarousel();
     });
 
     const observer = new MutationObserver(() => {
         const start = new Date().getTime();
         disposeFilterUI();
         restoreFilterUI();
-        findCarousel();
-        updateCarousel();
+        // findCarousel();
+        // updateCarousel();
         const finish = new Date().getTime();
         console.info(`dom changes observed in ${(finish - start) / 1000.0} sec`);
     });
