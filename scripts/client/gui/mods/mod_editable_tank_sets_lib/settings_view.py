@@ -46,7 +46,7 @@ def reset_ui():
     from .settings import Settings
     # noinspection PyUnresolvedReferences
     from gui.modsSettingsApi import g_modsSettingsApi
-    log.info('mod settings %s: %s' % (type(g_modsSettingsApi), dir(g_modsSettingsApi)))
+    # log.info('mod settings %s: %s' % (type(g_modsSettingsApi), dir(g_modsSettingsApi)))
 
     mod_settings = {
         'enabled': Settings.is_mod_enabled(),

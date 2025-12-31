@@ -75,7 +75,7 @@ class EditableTankSetsModel(ViewModel):
     def load_state(self):
         self.checkpoint += 1
         state = self.collect_state()
-        log.info('load new state: %s' % (json.dumps(state)))
+        # log.info('load new state: %s' % (json.dumps(state)))
         with self.transaction() as model:
             model.setCheckpoint(self.checkpoint)
             model.setCollections(state['collections'])
