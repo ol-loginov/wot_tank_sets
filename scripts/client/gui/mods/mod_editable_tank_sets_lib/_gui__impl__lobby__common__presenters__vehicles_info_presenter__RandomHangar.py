@@ -37,8 +37,8 @@ def RandomHangar__onLoading(base, self, *args, **kwargs):
         return ret
 
     log.info("RandomHangar__onLoading %s" % (args,))
-    filter = self._RandomHangar__randomVehicleFilter
-    filter._setCriteria(replace_condition(filter.criteria, IS_IN_ACTIVE_SET_CONDITION))
+    # filter = self._RandomHangar__randomVehicleFilter
+    # filter._setCriteria(replace_condition(filter.criteria, IS_IN_ACTIVE_SET_CONDITION))
     # for cond in filter.criteria.conditions:
     #     log.info("   loading pred: %s" % (cond,))
 
