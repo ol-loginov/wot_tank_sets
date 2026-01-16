@@ -380,7 +380,9 @@ function main() {
             if (view.model == null || model.checkpoint != view.modelCheckpoint) {
                 view.model = model;
                 view.modelCheckpoint = model.checkpoint;
+                // console.info(view.model);
                 restoreFilterUI();
+                updateFilterUI();
             }
         });
         modelObserver.subscribe();
