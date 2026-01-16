@@ -109,6 +109,8 @@ const filterSectionsRef = new LiveElement(() => {
 });
 
 function restoreFilterUI() {
+    disposeFilterUI();
+
     if (!view.model) return;
 
     const model = view.model;
@@ -130,7 +132,7 @@ function restoreFilterUI() {
 
     var created = false;
 
-    view.title = popoverBody.querySelector('#editableTankSetsTitle');
+    view.title = view.title || popoverBody.querySelector('#editableTankSetsTitle');
     if (!view.title) {
         info('create editableTankSetsTitle');
         view.title = dom('div', {id: 'editableTankSetsTitle', className: 'FormatText_db904f12 FilterPopover_category_aa274a28'});
@@ -141,7 +143,7 @@ function restoreFilterUI() {
         created = true;
     }
 
-    view.list = popoverBody.querySelector('#editableTankSetsList');
+    view.list = view.list || popoverBody.querySelector('#editableTankSetsList');
     if (!view.list) {
         info('create editableTankSetsList');
         view.list = dom('div', {id: 'editableTankSetsList', className: 'FilterPopover_toggleContainer_c7079ba8 FilterPopover_toggleContainer__type_38a25c90'});
@@ -378,23 +380,17 @@ function main() {
             if (view.model == null || model.checkpoint != view.modelCheckpoint) {
                 view.model = model;
                 view.modelCheckpoint = model.checkpoint;
-                updateFilterUI();
-                // findCarousel();
-                // updateCarousel();
+                restoreFilterUI();
             }
         });
         modelObserver.subscribe();
 
         restoreFilterUI();
-        // findCarousel();
     });
 
     const observer = new MutationObserver(() => {
         const start = new Date().getTime();
-        disposeFilterUI();
         restoreFilterUI();
-        // findCarousel();
-        // updateCarousel();
         const finish = new Date().getTime();
         console.info(`dom changes observed in ${(finish - start) / 1000.0} sec`);
     });
