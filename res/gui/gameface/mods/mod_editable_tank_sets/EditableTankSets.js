@@ -146,7 +146,7 @@ function restoreFilterUI() {
     view.list = view.list || popoverBody.querySelector('#editableTankSetsList');
     if (!view.list) {
         info('create editableTankSetsList');
-        view.list = dom('div', {id: 'editableTankSetsList', className: 'FilterPopover_toggleContainer_c7079ba8 FilterPopover_toggleContainer__type_38a25c90'});
+        view.list = dom('div', {id: 'editableTankSetsList', className: 'FilterPopover_toggleContainer_c7079ba8'});
         view.listDisplay = null;
         filterSections.appendChild(view.list);
         created = true;
