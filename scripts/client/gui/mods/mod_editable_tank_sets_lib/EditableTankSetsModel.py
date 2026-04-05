@@ -2,9 +2,9 @@ import json
 import logging
 
 from frameworks.wulf import ViewModel
-from gui.impl.lobby.hangar.presenters.vehicle_filters_presenter import VehicleFiltersDataProvider
-from openwg_gameface import gf_mod_inject
-from .events import overrideMethod
+from frameworks.wulf import ViewSettings, ViewFlags
+from gui.impl.pub import ViewImpl
+from openwg_gameface import gf_mod_inject, ModDynAccessor
 from .l10n import l10n
 from .settings import Settings as S
 
@@ -48,6 +48,10 @@ class EditableTankSetsModel(ViewModel):
         self._addNumberProperty('checkpoint', self.checkpoint)
         self.onSave = self._addCommand('onSave')
 
+        gf_mod_inject(self, VIEW_ID,
+                      styles=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.css'],
+                      modules=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.js'])
+
     def on_save_callback(self, param):
         S.set_active_collections(json.loads(param.get('actives')))
         # self._itemsCache.onSyncCompleted(CACHE_SYNC_REASON.SHOP_RESYNC, {})
@@ -84,36 +88,21 @@ class EditableTankSetsModel(ViewModel):
             # self._itemsCache.onSyncCompleted(CACHE_SYNC_REASON.SHOP_RESYNC, {})
 
 
-# noinspection PyPep8Naming
-@overrideMethod(VehicleFiltersDataProvider, '__init__')
-def VehicleFiltersDataProvider___init__(base, self, *args, **kwargs):
-    ret = base(self, *args, **kwargs)
-    if type(self) is not VehicleFiltersDataProvider:
-        return ret
+class EditableTankSetsComponent(ViewImpl):
+    viewLayoutID = ModDynAccessor(VIEW_ID)
 
-    log.info("add EditableTankSets viewModel into %s" % (type(self),))
+    def __init__(self):
+        settings = ViewSettings(EditableTankSetsComponent.viewLayoutID(), flags=ViewFlags.VIEW, model=EditableTankSetsModel())
+        super(EditableTankSetsComponent, self).__init__(settings)
 
-    setattr(self, 'editableTankSetsModel', EditableTankSetsModel())
-    self.viewModel._addViewModelProperty('EditableTankSets', self.editableTankSetsModel)
-    gf_mod_inject(self.viewModel, 'VehicleFilterModel',
-                  styles=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.css'],
-                  modules=['coui://gui/gameface/mods/mod_editable_tank_sets/EditableTankSets.js'])
+    @property
+    def viewModel(self):
+        return super(EditableTankSetsComponent, self).getViewModel()
 
-    return ret
-
-
-@overrideMethod(VehicleFiltersDataProvider, '_getEvents')
-def VehicleFiltersDataProvider_getEvents(base, self, *args, **kwargs):
-    ret = base(self, *args, **kwargs)
-    if type(self) is not VehicleFiltersDataProvider:
-        return ret
-
-    log.info("subscribe EditableTankSets viewModel events")
-
-    return ret + (
-        (self.editableTankSetsModel.onSave, self.editableTankSetsModel.on_save_callback),
-        (S.onChanged, self.editableTankSetsModel.load_state),
-    )
+    def _getEvents(self):
+        return (
+            (self.viewModel.onSave, self.viewModel.on_save_callback),
+            (S.onChanged, self.viewModel.load_state))
 
 
 LOADED = True

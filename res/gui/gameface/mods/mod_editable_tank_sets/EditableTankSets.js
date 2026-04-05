@@ -369,14 +369,13 @@ function main() {
     view.ModelObserver = ModelObserver;
 
     // Create model observer
-    const modelObserver = ModelObserver("VehicleFilterModel");
+    const modelObserver = ModelObserver("EditableTankSets");
 
     // Initialize UI logic once the engine is fully ready
     info('engine.whenReady');
     engine.whenReady.then(() => {
         // Keep button in sync with model changes (alerts count etc.)
-        modelObserver.onUpdate(m => {
-            const model = m.EditableTankSets;
+        modelObserver.onUpdate(model => {
             if (view.model == null || model.checkpoint != view.modelCheckpoint) {
                 view.model = model;
                 view.modelCheckpoint = model.checkpoint;

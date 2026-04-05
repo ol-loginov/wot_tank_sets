@@ -1,10 +1,9 @@
 import logging
-import time
 
-from future.utils import viewkeys
 from gui.shared.utils.requesters.ItemsRequester import RequestCriteria, PredicateCondition
 
 from gui.impl.lobby.hangar.random.random_hangar import RandomHangar
+from .EditableTankSetsModel import EditableTankSetsComponent
 from .events import overrideMethod
 from .settings import Settings as S
 
@@ -44,6 +43,22 @@ def RandomHangar__onLoading(base, self, *args, **kwargs):
 
     filter = self._RandomHangar__randomInvVehicleFilter
     filter._setCriteria(replace_condition(filter.criteria, IS_IN_ACTIVE_SET_CONDITION))
+
+    return ret
+
+
+@overrideMethod(RandomHangar, '_onLoading')
+def RandomHangarr__onLoading(base, self, *args, **kwargs):
+    ret = base(self, *args, **kwargs)
+    if type(self) is not RandomHangar:
+        log.info("cannot add EditableTankSets subview into %s (not-hangar)" % (type(self),))
+        return ret
+
+    log.info("add EditableTankSets subview into %s" % (type(self),))
+    self.setChildView(
+        EditableTankSetsComponent.viewLayoutID(),
+        EditableTankSetsComponent()
+    )
 
     return ret
 
