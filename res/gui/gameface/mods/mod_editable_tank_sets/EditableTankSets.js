@@ -88,24 +88,11 @@ class LiveElement {
     }
 }
 
-class Lazy {
-    constructor(factory) {
-        this.value = null;
-        this.factory = factory;
-    }
-
-    get(param) {
-        if (this.value == null)
-            this.value = this.factory(param);
-        return this.value;
-    }
-}
-
 const filterPopoverBodyRef = new LiveElement(() => document.querySelector('div.FilterPopover_body_9e82b944'));
 const filterSectionsRef = new LiveElement(() => {
     const popoverBody = filterPopoverBodyRef.get();
     if (!popoverBody) return null;
-    return popoverBody.querySelector('div.VerticalScroll_content_62cb6120')
+    return popoverBody.querySelector('div.VerticalScroll_content_f30246e6')
 });
 
 function restoreFilterUI() {
@@ -161,8 +148,6 @@ function restoreFilterUI() {
 
 const ActiveButtonClass = 'Toggle_cdf77db0 Toggle_base__theme-primary_3e3de333 Toggle_base__activated_d584e080 FilterPopover_toggle_747f4b53 FilterPopover_toggle__activated_19a04a6d';
 const InactiveButtonClass = 'Toggle_cdf77db0 Toggle_base__theme-primary_3e3de333 FilterPopover_toggle_747f4b53';
-
-const HiddenCardClass = 'EditableTankSet--hide';
 
 function updateFilterUI() {
     if (!view.model) return;
@@ -277,92 +262,6 @@ function dom(tagName, opts, ...children) {
         children.forEach(child => element.appendChild(child));
     }
     return element;
-}
-
-const carouselContentLive = new LiveElement(() => {
-    const pageCarousel = document.querySelector('.Page_carousel_2e3eb473');
-    if (!pageCarousel)return null;
-
-    return pageCarousel.querySelector('.CarouselSkeleton_content_b18f8dd7');
-});
-
-const carouselCards = new Map();
-
-function findCarousel() {
-    const carouselContent = carouselContentLive.get();
-    if (!carouselContent) return;
-
-    const fiberPropRef = new Lazy((node) => {
-        const prop = Object.keys(node).filter(n => n.startsWith('__reactFiber$'))[0];
-        return typeof prop === "string" ? prop : null;
-    });
-
-    for (const lastInvID of carouselCards.keys()) {
-        const lastCard = carouselCards.get(lastInvID);
-        if (!document.body.contains(lastCard)) {
-            carouselCards.delete(lastInvID);
-        }
-    }
-
-    const currentVehicles = new Set();
-
-    for (const vehicleCard of carouselContent.querySelectorAll('.vehicle-card')) {
-        const details = vehicleCard.querySelector('.Information_details_e5340a0c');
-        if (!details) continue;
-
-        const fiber = details[fiberPropRef.get(details)];
-        if (fiber && fiber.return && fiber.return.memoizedProps && fiber.return.memoizedProps.vehicle && fiber.return.memoizedProps.vehicle.inventoryId) {
-            const invID = fiber.return.memoizedProps.vehicle.inventoryId;
-            currentVehicles.add(invID);
-
-            const lastCard = carouselCards.get(invID);
-            if (lastCard && lastCard === vehicleCard) {
-                continue;
-            }
-            carouselCards.set(invID, vehicleCard);
-        }
-    }
-
-    for (const lastInvID of carouselCards.keys()) {
-        if (!currentVehicles.has(lastInvID)) {
-            carouselCards.delete(lastInvID);
-        }
-    }
-
-    console.info(`collect ${currentVehicles.size} cards. [${Array.from(currentVehicles).join(', ')}]`)
-}
-
-function updateCarousel() {
-    if (!view.model) return;
-
-    const model = view.model;
-    if (!model.modEnabled) {
-        cleanupUI();
-        return;
-    }
-
-    console.info(`current selected tanks: ${model.visibleSet}`)
-    let visibleSet = JSON.parse(model.visibleSet);
-    if (visibleSet != null) visibleSet = new Set(visibleSet);
-
-    for (const invID of carouselCards.keys()) {
-        const element = carouselCards.get(invID);
-        if (visibleSet == null || visibleSet.has(invID)) {
-            showCard(element);
-        } else {
-            hideCard(element);
-        }
-    }
-}
-
-function showCard(/** @type {HTMLDivElement} */ element) {
-    if (!element.classList.contains(HiddenCardClass)) return;
-    element.classList.remove(HiddenCardClass);
-}
-
-function hideCard(/** @type {HTMLDivElement} */ element) {
-    if (element.classList.contains(HiddenCardClass)) return;
-    element.classList.add(HiddenCardClass);
 }
 
 function main() {
