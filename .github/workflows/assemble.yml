@@ -113,4 +113,5 @@ jobs:
           commit: ${{ github.sha }}
           tag: v${{ needs.build.outputs.version }}
           draft: true
+          makeLatest: true
           artifacts: ${{ needs.build.outputs.artifact }}
