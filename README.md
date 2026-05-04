@@ -31,7 +31,7 @@ How-To Steps
 ## mod settings api
 
 * https://wiki.wargaming.net/ru/ModsettingsAPI
-* https://bitbucket.org/IzeBerg/modssettingsapi
+* https://github.com/IzeBerg/modssettingsapi
 
 ## mods list
 
